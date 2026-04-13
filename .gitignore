@@ -1,0 +1,7 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Repo-level agent context (personal paths — not for public repo)
+CLAUDE.md
