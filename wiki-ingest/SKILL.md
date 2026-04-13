@@ -3,7 +3,7 @@ name: wiki-ingest
 description: Process source files from the raw/ folder into synthesised wiki pages. Run after dropping articles, PDFs, notes, or data files into raw/ — or when you say /wiki-ingest. Treats raw/ as a flat queue: scans all files, extracts and synthesises knowledge, creates or updates wiki pages with wikilink backlinks, then moves each source file to ingested/[subdir]/ as an atomic commit — the move is the record of completion. Unreadable files move to ingested/assets/. Updates index.md and logs the operation. Blacklist applies to wiki page creation only, not file moves. Requires filesystem read/write/move access.
 compatibility: Works with any markdown knowledge base supporting [[wikilinks]] — Obsidian, Logseq, Foam, Dendron, or a plain folder of .md files.
 metadata:
-  version: "3.2"
+  version: "3.3"
 ---
 
 # Wiki Ingest
@@ -246,13 +246,14 @@ Report: files processed with outcomes and destinations, files moved to assets/ w
 
 1. **Blacklist governs wiki page creation only** — never create a wiki page in a blacklisted path; file moves to ingested/ are permitted regardless of blacklist
 2. **raw/ is a queue** — wiki-ingest is the only agent that moves files out of raw/, and only ever to ingested/; never delete files from raw/
-3. **Every file exits the queue** — processable files → ingested/<subdir>/; unprocessable files → ingested/assets/; no file is left behind
+3. **Every file exits the queue** — processable files → ingested/[subdir]/; unprocessable files → ingested/assets/; no file is left behind
 4. **Source links point to ingested/, never to raw/** — wiki page frontmatter and body links reference the post-move destination
-5. **log.md is append-only and an audit trail only** — never use it to determine processing state; never edit existing entries
-6. **Synthesise, do not copy** — wiki pages contain synthesised knowledge, not verbatim transcripts
-7. **Frontmatter on every new page** — always include title, version, date, changes
-8. **One source can produce multiple pages** — a rich PDF may warrant several wiki pages
-9. **If unsure whether a path is blacklisted, stop and ask** — never guess
+5. **The `changes:` frontmatter field is the trace** — every wiki page created from a source must include `changes: Created by wiki-ingest from ingested/[subdir]/[filename]`; this is how wiki-lint confirms a source is not orphaned
+6. **log.md is append-only and an audit trail only** — never use it to determine processing state; never edit existing entries
+7. **Synthesise, do not copy** — wiki pages contain synthesised knowledge, not verbatim transcripts
+8. **Frontmatter on every new page** — always include title, version, date, changes
+9. **One source can produce multiple pages** — a rich PDF may warrant several wiki pages; each page's `changes:` field should reference the source
+10. **If unsure whether a path is blacklisted, stop and ask** — never guess
 
 ---
 

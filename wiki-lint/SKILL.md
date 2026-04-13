@@ -1,9 +1,9 @@
 ---
 name: wiki-lint
-description: Health-check the wiki. Scans all pages for broken wikilinks, orphaned pages, stale index entries, missing connections between related pages, and orphaned binary assets. Produces a dated lint report in archive/. Use when you say /wiki-lint or periodically to maintain knowledge graph health. Never auto-fixes anything — report only. Requires filesystem read access and write access to archive/.
+description: Health-check the wiki. Scans all pages for broken wikilinks, orphaned pages, stale index entries, missing connections between related pages, orphaned binary assets, and orphaned sources in ingested/. Produces a dated lint report in archive/. Use when you say /wiki-lint or periodically to maintain knowledge graph health. Never auto-fixes anything — report only. Requires filesystem read access and write access to archive/.
 compatibility: Works with any markdown knowledge base supporting [[wikilinks]] — Obsidian, Logseq, Foam, Dendron, or a plain folder of .md files.
 metadata:
-  version: "2.3"
+  version: "2.4"
 ---
 
 # Wiki Lint
@@ -136,11 +136,21 @@ For each page listed in `index.md`, check whether the referenced file exists. If
 
 ### Step 7 — Check for orphaned binary assets
 
-For each non-markdown file outside blacklisted paths, raw\, archive\, and Projects\: search all in-scope pages for any reference to this filename. If none found: flag as an **orphaned binary asset**. A file that is contextually placed alongside related content (e.g. a PDF in a domain subfolder referenced by domain pages) is not an orphan — only flag files with no wiki references anywhere.
+For each non-markdown file outside blacklisted paths, raw\, archive\, and ingested\: search all in-scope pages for any reference to this filename. If none found: flag as an **orphaned binary asset**. A file contextually placed alongside related content (e.g. a PDF in a domain subfolder referenced by domain pages) is not an orphan — only flag files with no wiki references anywhere.
+
+### Step 7a — Check for orphaned sources in ingested/
+
+Every file in `ingested/` should have at least one wiki page that references it — typically via a `changes:` frontmatter field (e.g. `Created by wiki-ingest from ingested/documentation/foo.md`) or a link in the page body. A source with no wiki reference has been processed but left no trace in the knowledge graph.
+
+For each file in `ingested/` (all subdirs, including assets/):
+1. Search all in-scope wiki pages for the file's relative path (e.g. `ingested/documentation/foo.md`)
+2. If no match found: flag as an **orphaned source** — "ingested/[subdir]/filename has no wiki page referencing it"
+
+A source in `ingested/assets/` with no reference is expected (it was unreadable at ingest time) — flag it at lower severity as a **note** rather than a warning, so the user knows it exists and can re-attempt ingestion if capabilities have improved.
 
 ### Step 8 — Write the lint report
 
-Create `<vault_root>/archive/lint-YYYY-MM-DD.md`:
+Create `[wiki_root]/archive/lint-YYYY-MM-DD.md`:
 
 ```markdown
 ---
@@ -157,6 +167,7 @@ date: YYYY-MM-DD
 - Stale index entries: N
 - Missing connections (candidates): N
 - Orphaned binary assets: N
+- Orphaned sources in ingested/: N (+ N notes in assets/)
 - Conceptual flags: N
 
 ## Broken Wikilinks
@@ -176,6 +187,12 @@ date: YYYY-MM-DD
 
 ## Orphaned Binary Assets
 [file path, reason it has no wiki references]
+
+## Orphaned Sources in ingested/
+[file path, no wiki page references this source — consider re-ingesting or archiving]
+
+## Notes: ingested/assets/
+[file path, was unreadable at ingest time — re-attempt if capabilities have improved]
 
 ## Conceptual Flags
 [page, nature of potential issue]
@@ -197,7 +214,9 @@ Report the summary. Do not offer to auto-fix anything. Suggest follow-up:
 - Orphan pages → run wiki-integrate, or move to archive/ if deprecated
 - Stale index entries → remove from index.md or update the path
 - Missing connections → run wiki-integrate on the flagged page pairs
-- Orphaned assets → move to an appropriate location or delete if unwanted
+- Orphaned binary assets → move to an appropriate location or delete if unwanted
+- Orphaned sources in ingested/ → re-ingest the source file (drop back into raw/ and run wiki-ingest), or investigate why no wiki page was created
+- Notes in ingested/assets/ → retry ingestion if new tools or capabilities are available
 
 ---
 
