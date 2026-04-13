@@ -3,7 +3,7 @@ name: wiki-lint
 description: Health-check the wiki. Scans all pages for broken wikilinks, orphaned pages, stale index entries, missing connections between related pages, and orphaned binary assets. Produces a dated lint report in archive/. Use when you say /wiki-lint or periodically to maintain knowledge graph health. Never auto-fixes anything — report only. Requires filesystem read access and write access to archive/.
 compatibility: Works with any markdown knowledge base supporting [[wikilinks]] — Obsidian, Logseq, Foam, Dendron, or a plain folder of .md files.
 metadata:
-  version: "2.1"
+  version: "2.2"
 ---
 
 # Wiki Lint
@@ -42,14 +42,16 @@ Health-checks the wiki and produces a report. Never modifies wiki content.
 vault_root: /absolute/path/to/your/knowledge-base
 
 blacklist:
-  - Projects\
-  - Archive\
+  - Repositories\
 
 index_excludes:
   - raw\
   - archive\
+  - ingested\
 
-raw_subdirs:
+ingested_folder: ingested
+
+ingested_subdirs:
   - clippings
   - documentation
   - papers
@@ -70,22 +72,19 @@ Then write this body after the closing `---`:
 Windows example: `C:\Users\yourname\Documents\MyWiki`
 macOS example: `/Users/yourname/Documents/MyWiki`
 
-**blacklist** — Paths wiki skills must never write to (relative to vault_root).
-Add Git repos, source code folders, or any area that should never receive agent writes.
+**blacklist** — Paths where wiki page creation is forbidden (relative to vault_root).
+For wiki-lint: blacklisted paths are skipped entirely during scanning — lint will not
+read content inside them. Add Git repos or any path that should be invisible to agents.
 
 **index_excludes** — Paths excluded from index.md tracking.
-`raw\` is always excluded — source material is indexed only after wiki-ingest processes it.
+`raw\` and `ingested\` are excluded — source files are not wiki pages.
 `archive\` keeps deprecated pages out of the live catalogue.
+Important: wiki-lint reads `archive\` and `ingested\` for link target validation even
+though they are in index_excludes. A live page may link to archived or ingested content —
+those links must resolve to real files to pass the check.
 
-**raw_subdirs** — Subdirectories inside raw\ for organising source material.
-Wiki-ingest reads from here. Adapt freely — these are suggestions:
-- `clippings` — web saves and browser clips (point browser plugins like Obsidian Web Clipper here)
-- `documentation` — product docs, API references, technical specifications
-- `papers` — academic papers, PDFs, research material
-- `articles` — blog posts, news, long-form reading
-- `data` — CSV, JSON, structured datasets
-- `notes` — freeform drafts, quick capture, anything else
-Other common additions: `source` for code snippets or reference implementations
+**ingested_folder / ingested_subdirs** — Archive configuration for wiki-ingest.
+Carried here so the config is valid regardless of which skill runs first and triggers init.
 
 **log_format** — Do not change without updating all wiki skills.
 ```
@@ -103,7 +102,7 @@ This skill requires **filesystem read access** (to scan all pages) and **write a
 
 ### Step 1 — Build the page inventory
 
-List all `.md` files in the vault recursively. Exclude paths in `blacklist` and `index_excludes`. This is the **in-scope page set**. Also list all non-markdown files outside blacklisted paths, raw\, archive\, and Projects\ as potential orphaned binary assets.
+List all `.md` files in the vault recursively. Exclude paths in `blacklist` entirely — do not scan content inside them. Paths in `index_excludes` (`raw\`, `archive\`, `ingested\`) are excluded from being treated as wiki pages, but remain readable for link target validation: if a live wiki page links to a file in `archive/` or `ingested/`, that link must resolve to a real file. Build the **in-scope page set** from files outside both blacklist and index_excludes. Also list all non-markdown files outside blacklisted paths, raw\, archive\, and ingested\ as potential orphaned binary assets.
 
 ### Step 2 — Read index.md
 
@@ -112,6 +111,8 @@ Read `index.md`. Parse all wikilink references and file paths. Build a set of pa
 ### Step 3 — Check for broken wikilinks
 
 For each in-scope wiki page, extract all `[[wikilinks]]`. Attempt to resolve each to an actual file. If no matching file is found: flag as a **broken wikilink** with the page where found, the broken link text, and a suggested correction if obvious.
+
+Also flag: any wiki page containing a link that points into `raw/`. Once wiki-ingest moves files to `ingested/`, raw/ source links will break. Flag these as **future breakage warnings** — "[[Page]] links to raw/<filename>: will break after ingestion. Update to ingested/<subdir>/<filename> once ingest is complete." These are not yet broken but are guaranteed to become so.
 
 ### Step 4 — Check for orphan pages
 
@@ -149,6 +150,7 @@ date: YYYY-MM-DD
 
 ## Summary
 - Broken wikilinks: N
+- Future breakage warnings (raw/ links): N
 - Orphan pages: N
 - Stale index entries: N
 - Missing connections (candidates): N
@@ -157,6 +159,9 @@ date: YYYY-MM-DD
 
 ## Broken Wikilinks
 [page where found, broken link, suggested fix]
+
+## Future Breakage Warnings
+[page where found, raw/ link, suggested post-ingest destination]
 
 ## Orphan Pages
 [page path, reason it may be orphaned]
@@ -186,6 +191,7 @@ Report: archive/lint-YYYY-MM-DD.md
 
 Report the summary. Do not offer to auto-fix anything. Suggest follow-up:
 - Broken wikilinks → fix manually or run wiki-integrate on affected pages
+- Future breakage warnings → update raw/ links to ingested/ paths after the next ingest run
 - Orphan pages → run wiki-integrate, or move to archive/ if deprecated
 - Stale index entries → remove from index.md or update the path
 - Missing connections → run wiki-integrate on the flagged page pairs
@@ -198,8 +204,9 @@ Report the summary. Do not offer to auto-fix anything. Suggest follow-up:
 1. **Never modify wiki pages** — read-only except for writing the lint report to archive/
 2. **Never delete files** — flag only; the human decides
 3. **Do not flag contextually-placed files** — a file with wiki references in its domain is not an orphan
-4. **Blacklisted paths are skipped entirely**
-5. **Report is filed in archive/, not the wiki root**
+4. **Blacklisted paths are skipped entirely** — lint does not scan content inside blacklisted directories
+5. **index_excludes are not wiki pages but are valid link targets** — archive/ and ingested/ are readable for link resolution even though they are excluded from the page inventory
+6. **Report is filed in archive/, not the wiki root**
 
 ---
 

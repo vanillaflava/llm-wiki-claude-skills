@@ -3,7 +3,7 @@ name: wiki-integrate
 description: Weave a newly created or significantly updated wiki page into the knowledge graph. Adds it to index.md if missing, finds related pages by topic overlap, and adds backlinks in both directions. Use when you say /wiki-integrate, when a new page has just been created directly in a chat, or when a page has been significantly revised and needs connecting. Lightweight — does not rewrite content, only adds links and index entries. Requires filesystem read/write access.
 compatibility: Works with any markdown knowledge base supporting [[wikilinks]] — Obsidian, Logseq, Foam, Dendron, or a plain folder of .md files.
 metadata:
-  version: "2.1"
+  version: "2.2"
 ---
 
 # Wiki Integrate
@@ -42,14 +42,16 @@ Connects a new or updated wiki page into the knowledge graph by adding backlinks
 vault_root: /absolute/path/to/your/knowledge-base
 
 blacklist:
-  - Projects\
-  - Archive\
+  - Repositories\
 
 index_excludes:
   - raw\
   - archive\
+  - ingested\
 
-raw_subdirs:
+ingested_folder: ingested
+
+ingested_subdirs:
   - clippings
   - documentation
   - papers
@@ -70,22 +72,15 @@ Then write this body after the closing `---`:
 Windows example: `C:\Users\yourname\Documents\MyWiki`
 macOS example: `/Users/yourname/Documents/MyWiki`
 
-**blacklist** — Paths wiki skills must never write to (relative to vault_root).
-Add Git repos, source code folders, or any area that should never receive agent writes.
+**blacklist** — Paths where wiki page creation is forbidden (relative to vault_root).
+Add Git repos, source code folders, or any area that should never receive wiki writes.
 
 **index_excludes** — Paths excluded from index.md tracking.
-`raw\` is always excluded — source material is indexed only after wiki-ingest processes it.
+`raw\` and `ingested\` are always excluded — source files are not wiki pages.
 `archive\` keeps deprecated pages out of the live catalogue.
 
-**raw_subdirs** — Subdirectories inside raw\ for organising source material.
-Wiki-ingest reads from here. Adapt freely — these are suggestions:
-- `clippings` — web saves and browser clips (point browser plugins like Obsidian Web Clipper here)
-- `documentation` — product docs, API references, technical specifications
-- `papers` — academic papers, PDFs, research material
-- `articles` — blog posts, news, long-form reading
-- `data` — CSV, JSON, structured datasets
-- `notes` — freeform drafts, quick capture, anything else
-Other common additions: `source` for code snippets or reference implementations
+**ingested_folder / ingested_subdirs** — Archive configuration for wiki-ingest.
+Carried here so the config is valid regardless of which skill runs first and triggers init.
 
 **log_format** — Do not change without updating all wiki skills.
 ```

@@ -90,7 +90,7 @@ blacklist (ingest needs write access to move files here).
 
 **ingested_subdirs** — Archival taxonomy within ingested_folder. Wiki-ingest classifies each
 source and routes it to the appropriate subdir. Adapt freely — these are suggestions:
-- `clippings` — web saves, browser clips, Obsidian Web Clipper output
+- `clippings` — web saves, browser clips, web clipper output
 - `documentation` — product docs, API references, technical specifications
 - `papers` — academic papers, PDFs, research material
 - `articles` — blog posts, news, long-form reading
@@ -98,10 +98,10 @@ source and routes it to the appropriate subdir. Adapt freely — these are sugge
 - `notes` — freeform drafts, quick captures, anything else
 `ingested/assets/` is always created — it holds files that could not be read or extracted.
 
-**Obsidian property conflict warning:** Obsidian infers a type for each frontmatter property
-(text, list, date, etc.). If any property name in this config conflicts with a property of a
-different type used elsewhere in your vault or by a plugin, rename it here and in your live
-wiki-config.md. Inform your agent of any change so it reads the correct field names.
+**Property type conflict warning:** Some note-taking apps infer a type for each frontmatter
+property (text, list, date, etc.). If any property name in this config conflicts with a property
+of a different type elsewhere in your vault or used by a plugin, rename the field here and in
+your live wiki-config.md. Inform your agent of any change so it reads the correct field names.
 
 **log_format** — Do not change without updating all wiki skills.
 ```
@@ -168,6 +168,8 @@ Read `index.md`. Do two things:
 1. **Find integration points:** identify existing wiki pages related to the source — candidates for backlinks or updates. If this source appears to have been ingested before, note the existing page — you may be updating it rather than creating a new one.
 2. **Map subfolder structure:** scan the actual filesystem (via list_directory) for existing subfolders within the relevant wiki sections. Use this as the primary placement guide. Use index.md headings only to determine where to file the index entry, not to infer what subfolders exist on disk.
 
+**Duplicate page check:** Before creating a new page in step 2d, scan index.md descriptions for significant topic overlap with the incoming source. If a strong match exists — another page that already covers this subject — prefer updating that page rather than creating a new one. Flag the decision in the session summary: "updated [[Existing Page]] rather than creating a new page."
+
 #### 2d. Determine output: create or update wiki pages
 
 Decide whether to create new wiki page(s), update an existing page, or both.
@@ -194,7 +196,7 @@ When updating an existing page (including re-ingestions):
 
 #### 2e. Add reciprocal backlinks
 
-For each existing wiki page that should reference the new content, add a `[[New Page Title]]` link where the connection is genuinely useful to a reader of that page. Do not add backlinks mechanically.
+For each existing wiki page that should reference the new content, add a `[[New Page Title]]` link using this test: would a reader of that page benefit from knowing about this content in a normal reading context — not just because they share a keyword, but because one genuinely informs the other? If yes, add the link. If the connection only exists at the surface level, omit it. Graph density is not the goal.
 
 #### 2f. Move file to ingested/ — the atomic commit
 
