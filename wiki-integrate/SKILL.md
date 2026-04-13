@@ -3,7 +3,7 @@ name: wiki-integrate
 description: Weave a newly created or significantly updated wiki page into the knowledge graph. Adds it to index.md if missing, finds related pages by topic overlap, and adds backlinks in both directions. Use when you say /wiki-integrate, when a new page has just been created directly in a chat, or when a page has been significantly revised and needs connecting. Lightweight — does not rewrite content, only adds links and index entries. Requires filesystem read/write access.
 compatibility: Works with any markdown knowledge base supporting [[wikilinks]] — Obsidian, Logseq, Foam, Dendron, or a plain folder of .md files.
 metadata:
-  version: "2.3"
+  version: "2.4"
 ---
 
 # Wiki Integrate
@@ -168,8 +168,4 @@ Report: whether the target was added to index.md, which pages now link to it, wh
 5. **One target per run**
 6. **Do not integrate archive/ or assets/ pages**
 
----
 
-## Cloud-Synced Vaults
-
-Vaults stored in cloud sync services may have files not locally downloaded, appearing as zero-byte placeholders. If a file read returns empty unexpectedly, flag it as a possible sync issue and ask the user to confirm before retrying. Do not treat a zero-byte file as a successfully processed empty file.

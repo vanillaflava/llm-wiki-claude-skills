@@ -3,7 +3,7 @@ name: wiki-query
 description: Answer a question using the compiled wiki knowledge base. Reads index.md to identify relevant pages, synthesises an answer with [[wikilink]] citations, and optionally files valuable answers as new wiki pages. Use when you say /wiki-query or when the user wants to draw on accumulated wiki knowledge rather than general model knowledge. Requires filesystem read access.
 compatibility: Works with any markdown knowledge base supporting [[wikilinks]] — Obsidian, Logseq, Foam, Dendron, or a plain folder of .md files.
 metadata:
-  version: "2.3"
+  version: "2.4"
 ---
 
 # Wiki Query
@@ -163,8 +163,4 @@ If a query requires information only available in raw source files, note this an
 3. **Do not modify files unless the user explicitly asks** — reading is always safe; writing requires consent
 4. **Do not access blacklisted paths** — even for reading in query context
 
----
 
-## Cloud-Synced Vaults
-
-Vaults stored in cloud sync services may have files not locally downloaded, appearing as zero-byte placeholders. If a file read returns empty unexpectedly, flag it as a possible sync issue and ask the user to confirm before retrying. Do not treat a zero-byte file as a successfully processed empty file.

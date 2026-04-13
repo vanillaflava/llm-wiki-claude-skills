@@ -3,7 +3,7 @@ name: wiki-crystallize
 description: Distil a long chat thread, accumulated research session, or working document into a structured wiki page capturing the current state of knowledge on the topic. Run when you say /wiki-crystallize, when a chat is getting heavy, or before closing a long-running thread. The chat is the scaffolding; the wiki page is the artefact. Requires filesystem read/write access.
 compatibility: Works with any markdown knowledge base supporting [[wikilinks]] — Obsidian, Logseq, Foam, Dendron, or a plain folder of .md files.
 metadata:
-  version: "2.4"
+  version: "2.5"
 ---
 
 # Wiki Crystallize
@@ -100,7 +100,7 @@ This skill requires **filesystem read and write access**. If unavailable on the 
 
 Chats accumulate context that is costly to carry, hit-and-miss to search, and increasingly dominated by superseded content. Crystallize compresses the durable signal — decisions, findings, patterns, open questions — into a structured wiki page that orients any future session faster and more reliably than re-reading the thread.
 
-The name is precise: raw carbon accumulates; crystallize turns it into something dense, structured, and permanent. The chat is the scaffolding. The wiki page is the artefact.
+Use it liberally: any time something meaningful has happened — a decision reached, new knowledge absorbed, a question resolved, a design settled — that is enough reason to crystallize. It is not reserved for heavy or exhausted threads.
 
 **Keep:** Decisions made, patterns established, lessons learned, open questions, current understanding, key findings, agreed frameworks.
 **Discard:** Exploratory back-and-forth, dead ends, process chat, superseded drafts, corrections already incorporated.
@@ -234,8 +234,4 @@ Note: context window fullness cannot be precisely measured from within the skill
 5. **Update Overview.md sparingly** — only for genuinely significant knowledge shifts
 6. **Wikilinks make it searchable** — always add links to related pages
 
----
 
-## Cloud-Synced Vaults
-
-Vaults stored in cloud sync services may have files not locally downloaded, appearing as zero-byte placeholders. If a file read returns empty unexpectedly, flag it as a possible sync issue and ask the user to confirm before retrying. Do not treat a zero-byte file as a successfully processed empty file.

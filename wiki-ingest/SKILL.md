@@ -1,9 +1,9 @@
 ---
 name: wiki-ingest
-description: Process source files from the raw/ folder into synthesised wiki pages. Run after dropping articles, PDFs, notes, or data files into raw/ — or when you say /wiki-ingest. Treats raw/ as a flat queue: scans all files, extracts and synthesises knowledge, creates or updates wiki pages with wikilink backlinks, then moves each source file to ingested/<subdir>/ as an atomic commit — the move is the record of completion. Unreadable files move to ingested/assets/. Updates index.md and logs the operation. Blacklist applies to wiki page creation only, not file moves. Requires filesystem read/write/move access.
+description: Process source files from the raw/ folder into synthesised wiki pages. Run after dropping articles, PDFs, notes, or data files into raw/ — or when you say /wiki-ingest. Treats raw/ as a flat queue: scans all files, extracts and synthesises knowledge, creates or updates wiki pages with wikilink backlinks, then moves each source file to ingested/[subdir]/ as an atomic commit — the move is the record of completion. Unreadable files move to ingested/assets/. Updates index.md and logs the operation. Blacklist applies to wiki page creation only, not file moves. Requires filesystem read/write/move access.
 compatibility: Works with any markdown knowledge base supporting [[wikilinks]] — Obsidian, Logseq, Foam, Dendron, or a plain folder of .md files.
 metadata:
-  version: "3.1"
+  version: "3.2"
 ---
 
 # Wiki Ingest
@@ -185,7 +185,7 @@ When creating a new page:
   title: Note Title
   version: 1.0
   date: YYYY-MM-DD
-  changes: Created by wiki-ingest from ingested/<subdir>/<source-filename>
+  changes: Created by wiki-ingest from ingested/[subdir]/[source-filename]
   ---
   ```
 - Write synthesised markdown — not a raw copy of the source
@@ -205,13 +205,13 @@ For each existing wiki page that should reference the new content, add a `[[New 
 This step is the record of completion. Execute it after wiki page creation/update is done.
 
 **For processable files:**
-Move `raw/<filename>` to `ingested/<classified-subdir>/<filename>`.
+Move `raw/[filename]` to `ingested/[classified-subdir]/[filename]`.
 - If the destination subdir does not exist, create it first
 - If a file with the same name already exists in the destination, overwrite it (re-ingestion)
 - Move success = ingestion complete for this file
 
 **For unprocessable files** (reading failed, unsupported format, tool unavailable):
-Move `raw/<filename>` to `ingested/assets/<filename>` instead.
+Move `raw/[filename]` to `ingested/assets/[filename]` instead.
 - Log the reason the file could not be processed
 - The file is acknowledged and out of the queue; a future capability improvement may enable ingestion
 
