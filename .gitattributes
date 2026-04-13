@@ -1,0 +1,7 @@
+# Force LF line endings for all text files
+# Skill packages must have LF-only content — CRLF in SKILL.md
+# causes the YAML frontmatter closing delimiter (---) to not be
+# recognised, rendering the entire frontmatter as raw body text
+# in Claude Desktop's skill preview.
+* text=auto eol=lf
+*.skill binary
