@@ -3,7 +3,7 @@ name: wiki-query
 description: Answer a question using the compiled wiki knowledge base. Reads index.md to identify relevant pages, synthesises an answer with [[wikilink]] citations, and optionally files valuable answers as new wiki pages. Use when you say /wiki-query or when the user wants to draw on accumulated wiki knowledge rather than general model knowledge. Requires filesystem read access.
 compatibility: Works with any markdown knowledge base supporting [[wikilinks]] — Obsidian, Logseq, Foam, Dendron, or a plain folder of .md files.
 metadata:
-  version: "2.2"
+  version: "2.3"
 ---
 
 # Wiki Query
@@ -15,7 +15,7 @@ Answers questions by reading and synthesising knowledge from the compiled wiki.
 ## Configuration
 
 **Finding your config:** Search for `wiki-config.md` by filename across accessible directories. Do not assume a path. If found, read it and extract:
-- `vault_root` — absolute path to the wiki root
+- `wiki_root` — absolute path to the wiki root (may be a subfolder of a larger system)
 - `blacklist` — paths to exclude from search scope
 - `index_excludes` — paths excluded from index.md
 - `log_format` — format string for log entries
@@ -39,7 +39,7 @@ Answers questions by reading and synthesising knowledge from the compiled wiki.
 
 ```
 ---
-vault_root: /absolute/path/to/your/knowledge-base
+wiki_root: /absolute/path/to/your/wiki-root
 
 blacklist:
   - Repositories\
@@ -68,7 +68,9 @@ Then write this body after the closing `---`:
 ```markdown
 ## Configuration Guide
 
-**vault_root** — Absolute path to your knowledge base root.
+**wiki_root** — Absolute path to the root of your wiki — the folder containing your notes.
+This may be a subfolder of a larger system (a notes app, a sync folder, etc.). Set it to
+wherever your .md files live, not necessarily the root of the enclosing application.
 Windows example: `C:\Users\yourname\Documents\MyWiki`
 macOS example: `/Users/yourname/Documents/MyWiki`
 

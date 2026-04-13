@@ -3,7 +3,7 @@ name: wiki-lint
 description: Health-check the wiki. Scans all pages for broken wikilinks, orphaned pages, stale index entries, missing connections between related pages, and orphaned binary assets. Produces a dated lint report in archive/. Use when you say /wiki-lint or periodically to maintain knowledge graph health. Never auto-fixes anything — report only. Requires filesystem read access and write access to archive/.
 compatibility: Works with any markdown knowledge base supporting [[wikilinks]] — Obsidian, Logseq, Foam, Dendron, or a plain folder of .md files.
 metadata:
-  version: "2.2"
+  version: "2.3"
 ---
 
 # Wiki Lint
@@ -15,7 +15,7 @@ Health-checks the wiki and produces a report. Never modifies wiki content.
 ## Configuration
 
 **Finding your config:** Search for `wiki-config.md` by filename across accessible directories. Do not assume a path. If found, read it and extract:
-- `vault_root` — absolute path to the wiki root
+- `wiki_root` — absolute path to the wiki root (may be a subfolder of a larger system)
 - `blacklist` — paths to skip entirely during the scan
 - `index_excludes` — paths excluded from index.md
 - `log_format` — format string for log entries
@@ -39,7 +39,7 @@ Health-checks the wiki and produces a report. Never modifies wiki content.
 
 ```
 ---
-vault_root: /absolute/path/to/your/knowledge-base
+wiki_root: /absolute/path/to/your/wiki-root
 
 blacklist:
   - Repositories\
@@ -68,7 +68,9 @@ Then write this body after the closing `---`:
 ```markdown
 ## Configuration Guide
 
-**vault_root** — Absolute path to your knowledge base root.
+**wiki_root** — Absolute path to the root of your wiki — the folder containing your notes.
+This may be a subfolder of a larger system (a notes app, a sync folder, etc.). Set it to
+wherever your .md files live, not necessarily the root of the enclosing application.
 Windows example: `C:\Users\yourname\Documents\MyWiki`
 macOS example: `/Users/yourname/Documents/MyWiki`
 

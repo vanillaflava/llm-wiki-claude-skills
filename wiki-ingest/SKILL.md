@@ -3,7 +3,7 @@ name: wiki-ingest
 description: Process source files from the raw/ folder into synthesised wiki pages. Run after dropping articles, PDFs, notes, or data files into raw/ — or when you say /wiki-ingest. Treats raw/ as a flat queue: scans all files, extracts and synthesises knowledge, creates or updates wiki pages with wikilink backlinks, then moves each source file to ingested/<subdir>/ as an atomic commit — the move is the record of completion. Unreadable files move to ingested/assets/. Updates index.md and logs the operation. Blacklist applies to wiki page creation only, not file moves. Requires filesystem read/write/move access.
 compatibility: Works with any markdown knowledge base supporting [[wikilinks]] — Obsidian, Logseq, Foam, Dendron, or a plain folder of .md files.
 metadata:
-  version: "3.0"
+  version: "3.1"
 ---
 
 # Wiki Ingest
@@ -15,7 +15,7 @@ Processes source files from the `raw/` queue into synthesised, interlinked wiki 
 ## Configuration
 
 **Finding your config:** Search for `wiki-config.md` by filename across accessible directories. Do not assume a path. If found, read it and extract:
-- `vault_root` — absolute path to the wiki root
+- `wiki_root` — absolute path to the wiki root (may be a subfolder of a larger system)
 - `blacklist` — paths where wiki page creation is forbidden (relative to vault_root)
 - `index_excludes` — paths excluded from index.md
 - `ingested_folder` — path to the archival folder (relative to vault_root)
@@ -42,7 +42,7 @@ Processes source files from the `raw/` queue into synthesised, interlinked wiki 
 
 ```
 ---
-vault_root: /absolute/path/to/your/knowledge-base
+wiki_root: /absolute/path/to/your/wiki-root
 
 blacklist:
   - Repositories\
@@ -71,7 +71,9 @@ Then write this body after the closing `---`:
 ```markdown
 ## Configuration Guide
 
-**vault_root** — Absolute path to your knowledge base root.
+**wiki_root** — Absolute path to the root of your wiki — the folder containing your notes.
+This may be a subfolder of a larger system (a notes app, a sync folder, etc.). Set it to
+wherever your .md files live, not necessarily the root of the enclosing application.
 Windows example: `C:\Users\yourname\Documents\MyWiki`
 macOS example: `/Users/yourname/Documents/MyWiki`
 
@@ -123,7 +125,7 @@ This skill requires **filesystem read, write, move, and search access**. If runn
 
 ### Step 1 — Scan raw/ for all files
 
-List all files directly in `<vault_root>/raw/` (flat — no subdirectory traversal needed; raw/ has no subdirs in this architecture). If raw/ is empty, report "No files in raw/ to process." and stop — do not append to log.md for a no-op run.
+List all files directly in `<wiki_root>/raw/` (flat — no subdirectory traversal needed; raw/ has no subdirs in this architecture). If raw/ is empty, report "No files in raw/ to process." and stop — do not append to log.md for a no-op run.
 
 Every file found will be processed. There is no pre-filter based on log history — the filesystem is the truth. Files already ingested in a previous run will simply be re-ingested; the synthesis step will surface whether the content is unchanged, updated, or contradictory.
 

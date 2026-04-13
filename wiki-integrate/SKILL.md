@@ -3,7 +3,7 @@ name: wiki-integrate
 description: Weave a newly created or significantly updated wiki page into the knowledge graph. Adds it to index.md if missing, finds related pages by topic overlap, and adds backlinks in both directions. Use when you say /wiki-integrate, when a new page has just been created directly in a chat, or when a page has been significantly revised and needs connecting. Lightweight — does not rewrite content, only adds links and index entries. Requires filesystem read/write access.
 compatibility: Works with any markdown knowledge base supporting [[wikilinks]] — Obsidian, Logseq, Foam, Dendron, or a plain folder of .md files.
 metadata:
-  version: "2.2"
+  version: "2.3"
 ---
 
 # Wiki Integrate
@@ -15,7 +15,7 @@ Connects a new or updated wiki page into the knowledge graph by adding backlinks
 ## Configuration
 
 **Finding your config:** Search for `wiki-config.md` by filename across accessible directories. Do not assume a path. If found, read it and extract:
-- `vault_root` — absolute path to the wiki root
+- `wiki_root` — absolute path to the wiki root (may be a subfolder of a larger system)
 - `blacklist` — paths never to write to
 - `index_excludes` — paths excluded from index.md
 - `log_format` — format string for log entries
@@ -39,7 +39,7 @@ Connects a new or updated wiki page into the knowledge graph by adding backlinks
 
 ```
 ---
-vault_root: /absolute/path/to/your/knowledge-base
+wiki_root: /absolute/path/to/your/wiki-root
 
 blacklist:
   - Repositories\
@@ -68,7 +68,9 @@ Then write this body after the closing `---`:
 ```markdown
 ## Configuration Guide
 
-**vault_root** — Absolute path to your knowledge base root.
+**wiki_root** — Absolute path to the root of your wiki — the folder containing your notes.
+This may be a subfolder of a larger system (a notes app, a sync folder, etc.). Set it to
+wherever your .md files live, not necessarily the root of the enclosing application.
 Windows example: `C:\Users\yourname\Documents\MyWiki`
 macOS example: `/Users/yourname/Documents/MyWiki`
 
