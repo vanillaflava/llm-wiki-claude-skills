@@ -1,10 +1,9 @@
 ---
 name: wiki-lint
 description: Health-check the wiki. Scans all pages for broken wikilinks, orphaned pages, stale index entries, missing connections between related pages, orphaned binary assets, and orphaned sources in ingested/. Produces a dated lint report in archive/. Use when you say /wiki-lint or periodically to maintain knowledge graph health. Never auto-fixes anything — report only. Requires filesystem read access and write access to archive/.
-compatibility: Works with any markdown knowledge base using the wikilink convention — Obsidian, Logseq, Foam, Dendron, or a plain folder of .md files.
-metadata:
-  version: "2.5"
 ---
+
+<!-- version: 2.6 -->
 
 # Wiki Lint
 

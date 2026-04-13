@@ -1,10 +1,9 @@
 ---
 name: wiki-query
 description: Answer a question using the compiled wiki knowledge base. Reads index.md to identify relevant pages, synthesises an answer with [[wikilink]] citations, and optionally files valuable answers as new wiki pages. Use when you say /wiki-query or when the user wants to draw on accumulated wiki knowledge rather than general model knowledge. Requires filesystem read access.
-compatibility: Works with any markdown knowledge base using the wikilink convention — Obsidian, Logseq, Foam, Dendron, or a plain folder of .md files.
-metadata:
-  version: "2.5"
 ---
+
+<!-- version: 2.6 -->
 
 # Wiki Query
 
