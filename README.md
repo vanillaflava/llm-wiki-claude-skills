@@ -16,7 +16,7 @@ The skills are (hopefully) honest about what they are: structured instructions t
 
 This implementation grows out of my own history of working with Obsidian and learning LLM capabilities (and their restrictions!) over time. I started with local markdown files, downloading them, struggling with diffs, and generally being too lazy to do the bookkeeping needed to keep everything connected, coherent, and above all fresh. MCPs changed that game significantly for me, once I was able to add file system access. Now I could use LLM agents to read, write, and maintain notes directly on disk, without intermediaries. Editing was way faster now, bootstrapping new agents became a lot easier, but the discipline required to not keep drowning in hundreds semi-connected markdown files (plus their legacy versions) was still a drag. 
 
-What changed all this for me, was [Andrej Karpathy's llm-wiki gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f), which describes using an LLM to maintain a persistent, compounding wiki rather than doing one-shot RAG retrieval (and I had barely learned what that even was, before I read about the pattern). The core insight, that the wiki is a compiled artefact that gets richer with every source and query, rather than a pile of documents to retrieve from (which I had up to this point) is wholly Karpathy's and is well worth reading in full. And perhaps even just implementing yourself. I had never pushed anything to Github before this little project. I learned so much from just trying this out. It's a little shocking to me that a) I could just do this and b) how incredibly well this pattern actually works. 
+What changed all this for me, was [Andrej Karpathy's llm-wiki gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f), which describes using an LLM to maintain a persistent, compounding wiki rather than doing one-shot RAG retrieval (and I had barely learned what that even was, before I read about the pattern). The core insight, that the wiki is a compiled artefact that gets richer with every source and query, rather than a pile of documents to retrieve from (which I had up to this point) is wholly Karpathy's and is well worth reading in full. And perhaps even just implementing yourself. I had never pushed anything to GitHub before this little project. I learned so much from just trying this out. It's a little shocking to me that a) I could just do this and b) how incredibly well this pattern actually works. 
 
 What I am adding to it is just my own preferences in workflow (while keeping the skills generic): packaging, configuration, a source-tracing convention, and a few architectural choices that emerged from real sustained use.
 
@@ -47,7 +47,7 @@ Use them individually or together. A minimal setup is `wiki-ingest` and `wiki-qu
 
 ## Requirements
 
-**Claude with filesystem access.** These skills read and write files on your local disk. They require an MCP that provides filesystem access - [Desktop Commander](https://github.com/wonderwhy-er/DesktopCommanderMCP) is what this was developed and tested with; the [official Anthropic filesystem MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem) works equally well. Claude Code has native access built in. Without filesystem access, the skills are severely limited (to markdown files created by the LLM you need to manually copy to you local wiki.) 
+**Claude with filesystem access.** These skills read and write files on your local disk. They require an MCP that provides filesystem access - [Desktop Commander](https://github.com/wonderwhy-er/DesktopCommanderMCP) is what this was developed and tested with; the [official Anthropic filesystem MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem) works equally well. Claude Code has native access built in. Without filesystem access, the skills are severely limited (to markdown files created by the LLM you need to manually copy to your local wiki.) 
 
 **A Markdown wiki directory.** Any folder of `.md` files with a consistent wikilink convention works. The skills were developed in Obsidian but the files themselves are plain Markdown - nothing is Obsidian-specific.
 
@@ -96,7 +96,8 @@ log_format: "## [YYYY-MM-DD] {type} | {subject}"
 
 Then add this body below the closing `---` (the skills generate this automatically, but it's useful to have when editing manually):
 
-**wiki_root:** Absolute path to the root of your wiki. This is the wiki root, which may be a subfolder of a larger system (e.g. a notes app vault, a Dropbox folder, or any directory). Set it to wherever your `.md` files live, not necessarily the root of the enclosing application.
+**wiki_root:** Absolute path to the root of your wiki. This is the wiki root, which may be a subfolder of a larger system (e.g. a notes app vault, a Dropbox folder, or any directory). Set it to wherever your `.md` files live, not necessarily the root of the enclosing application. 
+
 Windows: `C:\Users\yourname\Documents\MyWiki`
 macOS: `/Users/yourname/Documents/MyWiki`
 
@@ -136,9 +137,34 @@ The agent will read the source, synthesise a wiki page, update the index, and mo
 
 ## Privacy
 
-Everything stays on your disk. No embedding service, no cloud index, no third-party API calls. The agent reads and writes local files; the only network calls are to the Claude API. Nothing about your wiki leaves your machine unless you choose to share it. 
+These skills are plain instructional language - no code, no scripts, no remote connections of their own. Other skills in the ecosystem may behave differently; always check what you install. But "no connections from the skill itself" does not mean private: **your wiki is not private from your LLM provider.** Every file the agent reads - source material you drop in `raw/`, wiki pages it synthesises, your `CLAUDE.md`, your index - is sent to Anthropic (or whichever provider you use) as part of the conversation. This is true even if everything lives on local disk. The only data boundary that matters is what the agent is allowed to access.
 
-**Important**: The same might not be true for the file system MCP you use. Make sure you inspect and understand that server's configuration. For example, Desktop Commander sends anonymised telemetry if not disabled. 
+Before you start, it helps to think in two scopes:
+
+```
+Your machine
+├── Everything else on your filesystem
+└── Your knowledge space (Obsidian vault, markdown reader, notes folder, etc.)
+    ├── Private/          ← medical, financial, personal — never expose
+    ├── Sensitive/        ← work confidential, legal, credentials
+    ├── Archive/          ← legacy notes you don't want an LLM near
+    └── Agent Access/     ← your wiki root — the ONLY folder the agent needs
+        ├── wiki-config.md
+        ├── CLAUDE.md
+        ├── raw/
+        ├── ingested/
+        └── ... wiki pages
+```
+
+Give the agent-accessible folder an obvious name - something like `Agent Access` makes the boundary legible to you when you're setting things up and when you revisit it later. Everything outside it should be unreachable by the agent. Everything inside it should be something you are comfortable sending to your LLM provider.
+
+Scope your filesystem MCP to that folder and nothing wider. If you use Desktop Commander, its `allowedDirectories` setting is the right lever. Anthropic's own filesystem MCP scopes to whatever directories you configure at setup. Whatever MCP you choose, the scope should be the wiki root - not your knowledge space root, not your documents folder, not your home directory. Agents with native filesystem access, such as Claude Code, are not constrained by MCP-level controls and must be scoped separately through their own configuration.
+
+The `blacklist` field in `wiki-config.md` is a separate and narrower control: it prevents the skills from _writing_ wiki pages to specific folders, but it does not prevent the agent from reading them. Do not rely on the blacklist as a privacy boundary - it is not one. If there are folders in your wiki root you do not want an LLM to read, move them outside the MCP's allowed scope entirely.
+
+The filesystem MCP you use may also send data of its own. Desktop Commander, as an example, sends anonymised telemetry by default unless you disable it in its config. Inspect and understand the privacy behaviour of any MCP tool before connecting it to material you consider sensitive. A useful frame: if you would not be comfortable seeing certain files in your provider's next training run, make sure they are simply not accessible to the agent. Use a structure where the boundary is obvious and easy to remember.
+
+What happens to your data once it reaches your provider depends on their privacy policy and your account settings. Claude's data handling is described at [anthropic.com/privacy](https://www.anthropic.com/privacy). If you use a different provider, check their policy before proceeding.
 
 ## TaskNotes (optional)
 
