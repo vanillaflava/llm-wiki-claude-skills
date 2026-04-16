@@ -3,7 +3,7 @@ name: wiki-ingest
 description: Process source files from the raw/ folder into synthesised wiki pages. Run after dropping articles, PDFs, notes, or data files into raw/, or when you say /wiki-ingest. Treats raw/ as a flat queue; scans all files, extracts and synthesises knowledge, creates or updates wiki pages with wikilink backlinks, then moves each source file to the appropriate ingested/ subfolder as an atomic commit — the move is the record of completion. Unreadable files move to ingested/assets/. Updates index.md and logs the operation. Blacklist applies to wiki page creation only, not file moves. Requires filesystem read/write/move access.
 ---
 
-<!-- version: 3.5 -->
+<!-- version: 3.6 -->
 
 # Wiki Ingest
 
@@ -161,6 +161,8 @@ Read the extracted content carefully. Identify the main topic and domain, key co
 - `data` — content is primarily structured data (CSV, JSON) not prose
 - `notes` — freeform, quick capture, or nothing else fits
 
+**Content type vs user-applied tags.** If a source has `tags: clippings` from a web clipper but the content appears to be something other than a generic web clip — for example, clearly official product documentation or an academic paper — do not silently override the tag. Instead, flag the apparent mismatch and ask the user: *"This file is tagged 'clippings' but reads like [documentation/a paper/etc.]. I'd suggest routing it to `documentation/` — does that match your intent, or should I use `clippings/`?"* The clipping tool may have been configured deliberately, or the user may have applied the tag for their own reasons. When in doubt, ask with a suggestion rather than deciding unilaterally.
+
 Record the chosen subdir — it is used in steps 2f and 2d.
 
 #### 2c. Consult index.md and filesystem
@@ -184,15 +186,25 @@ When creating a new page:
   title: Note Title
   version: 1.0
   date: YYYY-MM-DD
-  changes: Created by wiki-ingest from ingested/[subdir]/[source-filename]
+  changes: Created by wiki-ingest from [source-filename]
   ---
   ```
+  `changes:` must be a brief description only — never a file path or URL. The ingested/ path lives in the body Sources section (see below).
+- Add a Sources section at the end of the page body:
+  ```markdown
+  ## Sources
+  [source-filename](https://the-source-url) · `ingested/[subdir]/source-filename.md`
+  ```
+  If the source has a `source:` field in its frontmatter (web-clipped or known URL), both the URL and the local path are required. If no URL is available, the local path alone is sufficient. This section is how wiki-lint confirms the source is not orphaned — do not omit it.
 - Write synthesised markdown — not a raw copy of the source
 - Add `[[wikilinks]]` to related pages identified in step 2c
 
 When updating an existing page (including re-ingestions):
 - Read the full current page first
+- **Treat an update with the same synthesis ambition as a new page.** Do not anchor on what is already there — ask: *what does a reader of this page not yet know that this source would teach them?* That gap is the synthesis target. If the source is large (>100 lines) and the page has a clear existing structure, check every major section of the source against the current page — missing coverage of a major section is a synthesis gap, not a design decision.
 - Integrate new knowledge naturally; flag contradictions or significant updates in the session summary
+- If the page does not yet have a Sources section, add one using the same format above. If a Sources section already exists, check whether it references a `raw/` path for this source — if so, update it to the correct `ingested/[subdir]/[filename]` path. The Sources section should always reflect the post-move destination, never the raw/ queue.
+- If new content from this source would substantially change the scope or length of the page (rough signal: new content exceeds current content), consider whether the page should be split or a companion page created — offer this to the user as a suggestion, do not act without consent
 - Update the frontmatter version and changes fields
 
 #### 2e. Add reciprocal backlinks
@@ -223,7 +235,7 @@ For each new wiki page created, add an entry in the correct section:
 
 Place under the correct subfolder heading, consistent with step 2d placement. Do not add entries for blacklisted paths, raw/ sources, ingested/ source files, or binary files.
 
-If a page was updated rather than created, no index entry change is needed.
+If a page was updated rather than created, assess whether its current index.md description still accurately reflects the page's scope. If the update added a major new section or substantially changed coverage, update the description. A stale index entry misleads future searches and agent orientation.
 
 #### 2h. Append to log.md — audit trail
 
@@ -247,7 +259,7 @@ Report: files processed with outcomes and destinations, files moved to assets/ w
 2. **raw/ is a queue** — wiki-ingest is the only agent that moves files out of raw/, and only ever to ingested/; never delete files from raw/
 3. **Every file exits the queue** — processable files → ingested/[subdir]/; unprocessable files → ingested/assets/; no file is left behind
 4. **Source links point to ingested/, never to raw/** — wiki page frontmatter and body links reference the post-move destination
-5. **The `changes:` frontmatter field is the trace** — every wiki page created from a source must include `changes: Created by wiki-ingest from ingested/[subdir]/[filename]`; this is how wiki-lint confirms a source is not orphaned
+5. **The body Sources section is the trace** — every wiki page created from a source must include a Sources section with the `ingested/[subdir]/[filename]` path; this is how wiki-lint confirms a source is not orphaned. The `changes:` frontmatter field contains only a brief human-readable description — never a file path or URL
 6. **log.md is append-only and an audit trail only** — never use it to determine processing state; never edit existing entries
 7. **Synthesise, do not copy** — wiki pages contain synthesised knowledge, not verbatim transcripts
 8. **Frontmatter on every new page** — always include title, version, date, changes
