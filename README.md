@@ -65,12 +65,10 @@ That's it. The skills appear in your skill list and activate automatically when 
 
 **1. (optional) Set up before first use**
 
-The skills will search for `wiki-config.md` anywhere in your wiki and offer to create one on first use if it's not found. If you'd rather set it up yourself first, paste the following into a file called `wiki-config.md` and drop it anywhere in your wiki folder:
+The skills will search for `wiki-config.md` anywhere inside the MCP-accessible scope and offer to create one on first use if it's not found. **The directory containing `wiki-config.md` is the wiki root.** If you'd rather set it up yourself first, create a file called `wiki-config.md` at your intended wiki root with this content:
 
 ```yaml
 ---
-wiki_root: C:\Users\yourname\Documents\MyWiki
-
 blacklist:
   - Repositories\
   - PrivateFolder\
@@ -96,18 +94,15 @@ log_format: "## [YYYY-MM-DD] {type} | {subject}"
 
 Then add this body below the closing `---` (the skills generate this automatically, but it's useful to have when editing manually):
 
-**wiki_root:** Absolute path to the root of your wiki. This is the wiki root, which may be a subfolder of a larger system (e.g. a notes app vault, a Dropbox folder, or any directory). Set it to wherever your `.md` files live, not necessarily the root of the enclosing application. 
+**Wiki root:** The directory containing `wiki-config.md` is the wiki root. The skills derive it from the config file's location; you do not write the path anywhere. If you move the wiki, move this file with it and nothing else changes. Your wiki root must be inside your MCP's allowed scope or the skills cannot reach your notes.
 
-Windows: `C:\Users\yourname\Documents\MyWiki`
-macOS: `/Users/yourname/Documents/MyWiki`
+**blacklist:** Paths where wiki page creation is forbidden, relative to wiki root. Add Git repos, source code folders, or any area that should never receive wiki writes.
 
-**blacklist:** Paths where wiki page creation is forbidden (relative to wiki_root). Add Git repos, source code folders, or any area that should never receive wiki writes.
+**index_excludes:** Paths excluded from `index.md` tracking. `raw\` and `ingested\` are always excluded; source files are not wiki pages.
 
-**index_excludes:** Paths excluded from `index.md` tracking. `raw\` and `ingested\` are always excluded - source files are not wiki pages.
+**ingested_folder:** Folder where processed source files are archived, relative to wiki root. Must be in `index_excludes`; must not be in `blacklist`.
 
-**ingested_folder:** Folder where processed source files are archived (relative to wiki_root). Must be in `index_excludes`; must not be in `blacklist`.
-
-**ingested_subdirs:** Archival taxonomy within `ingested_folder`. The skill classifies each source and routes it to the appropriate subfolder. Adapt freely - these are just suggestions. `ingested/assets/` is always created for files that couldn't be read or extracted.
+**ingested_subdirs:** Archival taxonomy within `ingested_folder`. The skill classifies each source and routes it to the appropriate subfolder. Adapt freely; these are just suggestions. `ingested/assets/` is always created for files that couldn't be read or extracted.
 
 **log_format:** Do not change without updating all wiki skills.
 
