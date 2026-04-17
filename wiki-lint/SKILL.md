@@ -1,9 +1,9 @@
 ---
 name: wiki-lint
-description: Health-check the wiki. Scans all pages for broken wikilinks, orphaned pages, stale index entries, missing connections between related pages, orphaned binary assets, and orphaned sources in ingested/. Produces a dated lint report in archive/. Use when you say /wiki-lint or periodically to maintain knowledge graph health. Never auto-fixes anything; report only. Requires filesystem read access and write access to archive/.
+description: Health-check the wiki. Scans all pages for broken wikilinks, orphaned pages, stale index entries, missing connections between related pages, em-dash violations in page titles and filenames, orphaned binary assets, and orphaned sources in ingested/. Produces a dated lint report in archive/. Use when you say /wiki-lint or periodically to maintain knowledge graph health. Never auto-fixes anything; report only. Requires filesystem read access and write access to archive/.
 ---
 
-<!-- version: 2.8 -->
+<!-- version: 2.9 -->
 
 # Wiki Lint
 
@@ -129,6 +129,16 @@ For each page listed in `index.md`, check whether the referenced file exists. If
 
 **Missing connections:** Scan `index.md` descriptions for significant term overlap between page pairs that do not link to each other. Pages that share multiple key concepts in their index descriptions but have no mutual wikilinks are candidates for missing connections. Flag pairs with meaningful overlap; do not flag tenuous keyword coincidences. This is a lightweight heuristic pass; wiki-integrate handles the actual linking if the user agrees a connection is genuine.
 
+### Step 6b - Check for em-dash in page titles and filenames
+
+Em-dashes (`—`) in page filenames and `title:` frontmatter fields are a persistent LLM output artifact. They break wikilinks (a link to `[[Topic - Subtopic]]` will not resolve a file named `Topic — Subtopic.md`), make pages unsearchable by their intended name, and violate the vault's em-dash convention.
+
+For each in-scope page:
+1. Check the filename for any `—` character
+2. Read the `title:` frontmatter field and check for any `—` character
+
+Flag each occurrence as an **em-dash violation** with the file path, where it was found (filename / title field), the offending string, and the suggested fix: replace `—` with ` - ` (space-hyphen-space).
+
 ### Step 7 - Check for orphaned binary assets
 
 For each non-markdown file outside blacklisted paths, raw\, archive\, and ingested\: search all in-scope pages for any reference to this filename. If none found: flag as an **orphaned binary asset**. A file contextually placed alongside related content (e.g. a PDF in a domain subfolder referenced by domain pages) is not an orphan; only flag files with no wiki references anywhere.
@@ -161,6 +171,7 @@ date: YYYY-MM-DD
 - Orphan pages: N
 - Stale index entries: N
 - Missing connections (candidates): N
+- Em-dash violations (titles/filenames): N
 - Orphaned binary assets: N
 - Orphaned sources in ingested/: N (+ N notes in assets/)
 - Conceptual flags: N
@@ -179,6 +190,9 @@ date: YYYY-MM-DD
 
 ## Missing Connections
 [page pair, overlapping terms, suggested action: run wiki-integrate]
+
+## Em-dash Violations
+[file path, where found (filename / title field), suggested fix: replace — with ' - ']
 
 ## Orphaned Binary Assets
 [file path, reason it has no wiki references]
@@ -209,6 +223,7 @@ Report the summary. Do not offer to auto-fix anything. Suggest follow-up:
 - Orphan pages -> run wiki-integrate, or move to archive/ if deprecated
 - Stale index entries -> remove from index.md or update the path
 - Missing connections -> run wiki-integrate on the flagged page pairs
+- Em-dash violations -> rename the file (replace `—` with ` - `) and update its `title:` field; search for any wikilinks pointing to the old name and update them
 - Orphaned binary assets -> move to an appropriate location or delete if unwanted
 - Orphaned sources in ingested/ -> re-ingest the source file (drop back into raw/ and run wiki-ingest), or investigate why no wiki page was created
 - Notes in ingested/assets/ -> retry ingestion if new tools or capabilities are available
