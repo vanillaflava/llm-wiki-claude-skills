@@ -3,7 +3,7 @@ name: wiki-crystallize
 description: Distil a long chat thread, accumulated research session, or working document into a structured wiki page capturing the current state of knowledge on the topic. Run when you say /wiki-crystallize, when a chat is getting heavy, or before closing a long-running thread. The chat is the scaffolding; the wiki page is the artefact. Requires filesystem read/write access.
 ---
 
-<!-- version: 2.8 -->
+<!-- version: 2.9 -->
 
 # Wiki Crystallize
 
@@ -96,20 +96,18 @@ This skill requires **filesystem read and write access**. If unavailable on the 
 
 ## Purpose
 
-Chats accumulate context that is costly to carry, hit-and-miss to search, and increasingly dominated by superseded content. Crystallize compresses the durable signal (decisions, findings, patterns, open questions) into a structured wiki page that orients any future session faster and more reliably than re-reading the thread.
+Crystallize compresses the durable signal from a chat (decisions, findings, patterns, open questions) into a structured wiki page that orients any future session faster than re-reading the thread.
 
-Use it liberally: any time something meaningful has happened (a decision reached, new knowledge absorbed, a question resolved, a design settled), that is enough reason to crystallize. It is not reserved for heavy or exhausted threads.
+Use it liberally - any time something meaningful has happened. It is not reserved for heavy or exhausted threads. It is the session management mechanism: the wiki is the memory that persists across chat cycles; chat history is scaffolding. Crystallize before retiring a chat, not as a cleanup step afterward.
 
-**Keep:** Decisions made, patterns established, lessons learned, open questions, current understanding, key findings, agreed frameworks.
-**Discard:** Exploratory back-and-forth, dead ends, process chat, superseded drafts, corrections already incorporated.
-
-Crystallize serves at multiple stages; it is not exclusively a thread-ending operation:
+**Keep:** Decisions made, patterns established, lessons learned, open questions, current understanding, key findings.
+**Discard:** Exploratory back-and-forth, dead ends, process chat, superseded drafts.
 
 | Level | When to use | Closing posture |
 |---|---|---|
-| **Single session** | End of a working session; established context still valuable | Pause, not close; continue or return |
-| **Topic thread** | After several sessions; thread getting heavy | Recommend fresh start for next session |
-| **Whole chat** | Thread is exhausted or explicitly being archived | Strong close; wiki page is the successor |
+| **Single session** | End of a working session; context still valuable | Pause, not close |
+| **Topic thread** | Thread getting heavy across sessions | Recommend fresh start |
+| **Whole chat** | Thread exhausted or explicitly archived | Strong close |
 
 ---
 
@@ -136,20 +134,20 @@ Identify durable knowledge (decisions, findings, patterns, open questions, curre
 
 ### Step 3 - Find an existing home for this knowledge
 
-Before creating anything new, check whether the knowledge already has a home in the wiki.
+Before scanning candidates, check whether the topic belongs to an existing domain. If a Domain Home exists for that domain, it is the presumptive target - scan to confirm fit, not to find alternatives. Prefer updating a hub over creating a new file.
 
-Read `index.md` and scan for pages that could serve as the hub for this topic:
-- A page whose title matches the topic of the crystallization
-- A domain home page that covers this ground
+Read `index.md` and scan for:
+- A Domain Home covering this ground (check first)
+- A page whose title matches the topic
 - A "Current State" or summary page for this area
 
-For each candidate, read the page briefly to assess fit.
+**Strong match found:** update it. Proceed to Step 4a.
 
-**If a strong match is found:** Prefer enriching and updating it. Proceed to Step 4a.
+**Multiple candidates or unclear:** ask the user: *"I found these pages that might be the right home: [list]. Update one, or create new?"* Wait for their answer.
 
-**If multiple candidates exist, or it's unclear:** Ask the user: *"I found these existing pages that might be the right home for this: [list]. Should I update one of these, or create a new page?"* Wait for their answer.
+**No existing page fits:** confirm with the user before creating, unless the content is clearly self-contained.
 
-**If no existing page fits:** Confirm with the user before creating a new page, unless the session was lightweight and the content is clearly self-contained.
+**Key rule:** When in doubt, update a hub rather than create. New pages fragment the graph; rich hubs compound it.
 
 ### Step 4a - Update an existing page
 
