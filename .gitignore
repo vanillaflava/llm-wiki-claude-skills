@@ -3,5 +3,9 @@
 Thumbs.db
 desktop.ini
 
-# Repo-level agent context (personal paths — not for public repo)
+# Repo-level agent context (personal paths - not for public repo)
 CLAUDE.md
+
+# wiki-pack skill and binary - kept local until ready to ship publicly
+wiki-pack/
+wiki-pack.skill
