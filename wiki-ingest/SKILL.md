@@ -3,7 +3,7 @@ name: wiki-ingest
 description: Process source files from the raw/ folder into synthesised wiki pages. Run after dropping articles, PDFs, notes, or data files into raw/, or when you say /wiki-ingest. Treats raw/ as a flat queue; scans all files, extracts and synthesises knowledge, creates or updates wiki pages with wikilink backlinks, then moves each source file to the appropriate ingested/ subfolder as an atomic commit; the move is the record of completion. Unreadable files move to ingested/assets/. Updates index.md and logs the operation. Blacklist applies to wiki page creation only, not file moves. Requires filesystem read/write/move access.
 ---
 
-<!-- version: 3.7 -->
+<!-- version: 3.8 -->
 
 # Wiki Ingest
 
@@ -205,6 +205,12 @@ When updating an existing page (including re-ingestions):
 - If the page does not yet have a Sources section, add one using the same format above. If a Sources section already exists, check whether it references a `raw/` path for this source; if so, update it to the correct `ingested/[subdir]/[filename]` path. The Sources section should always reflect the post-move destination, never the raw/ queue.
 - If new content from this source would substantially change the scope or length of the page (rough signal: new content exceeds current content), consider whether the page should be split or a companion page created; offer this to the user as a suggestion, do not act without consent
 - Update the frontmatter version and changes fields
+
+**Large or dense reference documents - third path.** Some files are readable but are too large or specialised to synthesise meaningfully into wiki pages. A 400-page medical advisory, a full technical standard, or a comprehensive legal document may be worth keeping on hand for direct consultation without being ingested. When a source is readable but synthesis would produce noise rather than signal, surface the judgment to the user before proceeding:
+
+*"[filename] is [N pages / very large]. I can: (a) create a wiki page synthesising the key findings, (b) enrich an existing related page with what's relevant, or (c) acknowledge it exists with a stub entry and a pointer - useful if you want it indexed but don't want to synthesise it now. Which would you prefer?"*
+
+If the user chooses (c): create a minimal stub page with a `## Sources` section pointing to the file's location, and move the file to the relevant domain `Assets/` folder (not `ingested/` - this file was never fed to the ingest queue by design). Note that `Knowledge/[Domain]/Assets/` is distinct from `ingested/assets/`: the former holds files deliberately kept as reference material; the latter holds files that failed ingest and may be retried later.
 
 #### 2e. Add reciprocal backlinks
 

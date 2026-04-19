@@ -128,7 +128,9 @@ A short document that tells the agent: where things live, what conventions to fo
 
 **3. Drop a file in raw/ and say `/wiki-ingest`**
 
-The agent will read the source, synthesise a wiki page, update the index, and move the file to `ingested/`. That's the whole loop.
+The agent will read the source, synthesise a wiki page, update the index, and move the file to `ingested/`. That's the basic loop. 
+
+From here you can co-work with your LLM on the wiki to add new sources, ask question, and refine them; and when you reach milestones, use /wiki-crystallize to use the LLM's build-up context to synthesise and update all pages this new concept is connected to (and correct stale references, wikilinks etc.). Your LLM will adapt to your personal pattern and you can use CLAUDE.md to nudge its behaviour to your preferences.
 
 ## Privacy
 
