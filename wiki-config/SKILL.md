@@ -3,7 +3,7 @@ name: wiki-config
 description: Set up, validate, and reconfigure wiki-config.md for the llm-wiki skill suite. Use when the user says /wiki-config, asks to "set up my wiki", "configure wiki", "initialize wiki config", or when any wiki skill reports a missing or invalid config. Owns the interactive configuration flow for the wiki system.
 ---
 
-<!-- version: 1.1  -->
+<!-- version: 1.4 -->
 
 # Wiki Config
 
@@ -25,7 +25,7 @@ Filesystem read, write, search, and directory creation. If running on a surface 
 
 #### Show the wiki skill ecosystem
 
-Check which wiki skills are installed. Skills are typically found at `/mnt/skills/user/` or similar paths in the agent's environment. If you're unsure where skills are located on this surface, search for documentation on skill installation before proceeding.
+Check which wiki skills are available in this session. Scan the `<available_skills>` section in your context for skills matching the `wiki-*` pattern (wiki-config, wiki-ingest, wiki-query, wiki-lint, wiki-integrate, wiki-crystallize). Skills found in `<available_skills>` are enabled and usable - mark as ✓. Skills not found are either not installed or toggled off in the user's settings - mark as ✗.
 
 Present this table with actual status for each skill:
 
@@ -52,15 +52,19 @@ Then present:
 
 ---
 
-> **Welcome to the wiki system**
+> **Welcome to your LLM-Wiki**
 > 
-> Before we start, here's what you need to understand:
-> 
+> Before we start, a quick orientation:
+
 > **Filesystem access scope** - The directory your filesystem tool can reach. This is the outer boundary. Scope your tool tightly; broad access is a privacy risk.
-> 
-> **Wiki root** - The folder inside that scope containing your Markdown notes and wiki system files (`wiki-config.md`, `index.md`, `log.md`, `raw\`, `ingested\`, `templates\`). This should be a place where you normally read your `.md` files - like a subset of your Obsidian vault, your Logseq graph, or simply the folder where you keep your Markdown notes. Skills find wiki root by looking for `wiki-config.md`.
-> 
-> Wiki root is NOT your machine root (`C:\`, `/`), NOT your user home, and not necessarily your vault root. It's a specific folder you choose for the wiki. **This is Markdown-only** - we're building a wiki of interlinked `.md` files, not Word docs or PDFs (though you can drop those in `raw\` as sources to be synthesised).
+>
+> **Wiki root** - The folder inside that scope containing your Markdown notes and wiki system files (`wiki-config.md`, `index.md`, `log.md`, `raw\`, `ingested\`, `templates\`). This is where you keep your `.md` files - a subset of your Obsidian vault, your Logseq graph, or wherever you maintain notes. Skills find wiki root by looking for `wiki-config.md`.
+
+> **Important:** Wiki root should not be your machine root (`C:\`, `/`) or user home - those are privacy risks. It also doesn't need to be your entire vault or graph. 
+>
+> We recommend setting wiki root as a subdirectory of your knowledge base - only the folders you're comfortable sharing with an agent. 
+>
+> The wiki works with your existing notes and helps you synthesize sources (PDFs, articles, documents) into interlinked wiki pages. Each source you add and each question you ask makes the knowledge base richer - it compounds over time.
 
 ---
 

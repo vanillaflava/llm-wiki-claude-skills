@@ -3,7 +3,7 @@ name: wiki-integrate
 description: Weave a newly created or significantly updated wiki page into the knowledge graph. Adds it to index.md if missing, finds related pages by topic overlap, and adds backlinks in both directions. Use when you say /wiki-integrate, when a new page has just been created directly in a chat, or when a page has been significantly revised and needs connecting. Lightweight; does not rewrite content, only adds links and index entries. Requires filesystem read/write access.
 ---
 
-<!-- version: 3.0 -->
+<!-- version: 3.2 -->
 
 # Wiki Integrate
 
@@ -11,29 +11,24 @@ Connects a new or updated wiki page into the knowledge graph by adding backlinks
 
 ---
 
-## Config
+## Config Discovery
 
-Wiki root is the directory containing `wiki-config.md`. Skills derive it at runtime.
+**Every invocation starts here.** Wiki root is the directory containing `wiki-config.md`. Skills derive it at runtime.
 
-**Step 1 - Identify filesystem scope.** Determine the root directory the filesystem tool has access to (for filesystem MCP: `allowedDirectories`; for Claude Code: session CWD; for other surfaces: the equivalent).
+1. **Identify scope**: Determine filesystem scope root (allowedDirectories for MCP, CWD for Code, equivalent for other surfaces)
 
-**Step 2 - Check scope sensibility.** If the scope root is a bare drive root (`C:\`, `D:\`, `/`), an OS root, or a user home (`C:\Users\X`, `/home/X`, `/Users/X`), do NOT search. Go to Step 4.
+2. **Scope check**: If scope is bare drive root (`C:\`, `D:\`, `/`), OS root, or user home (`C:\Users\X`, `/home/X`, `/Users/X`) → skip to step 4 (do not search for privacy)
 
-**Step 3 - Bounded search.** If scope is sensible, search recursively for `wiki-config.md`. First-match early termination, max 5 directory levels deep. If found: the directory containing it is the wiki root. Read `blacklist`, `index_excludes`, `ingested_folder`, `ingested_subdirs`, `log_format`. Proceed with the skill's operation.
+3. **Bounded search**: Search recursively for `wiki-config.md` (first-match, max 5 levels). If found → read config (`blacklist`, `index_excludes`, `ingested_folder`, `ingested_subdirs`, `log_format`), proceed with skill operation
 
-**Step 4 - Ask once.** If not found, or scope was insensible, ask the user:
+4. **Config not found** (scope was insensible OR search returned empty):
+   - **Get oriented first**: Check if wiki-config skill is available (scan `<available_skills>` section for `wiki-config` entry), then read `references/setup-help.md` to load setup context
+   - **Then ask**: "I couldn't find `wiki-config.md`. Where is your wiki root - the folder containing your notes and `wiki-config.md`?"
+   - If user provides path: search there (bounded, max 5 levels). If found → read config, proceed. If not found or user is unsure → offer setup paths:
+     - If wiki-config available: "Run `/wiki-config` for guided setup"
+     - If not: "Install wiki-config skill for guided setup, or I can help with manual setup using the references I've loaded"
 
-*"I couldn't find `wiki-config.md` in my accessible scope. Where is your wiki root - the folder containing your notes and `wiki-config.md`? It must be inside my filesystem scope."*
-
-If the user provides a specific path: look for `wiki-config.md` at that path or within it (bounded search, max 5 levels deep). If found, use the containing directory as wiki root, read config, and proceed. If not found at the provided path, go to Step 5.
-
-If the user is unclear, unsure, or declines to answer: go to Step 5.
-
-**Step 5 - Unable to proceed.** The skill cannot meaningfully operate without a configured wiki. State the situation clearly, recommend the proper setup path, and point at the bundled references:
-
-*"I can't operate without a configured wiki. The recommended setup path is the `/wiki-config` skill - install it (if not already available) and run it for interactive setup. If you'd rather set up manually, I have two bundled references in this skill: `references/setup-help.md` (manual setup walkthrough) and `references/wiki-config-template.md` (the default config content). I can read those and walk you through it if you want."*
-
-After this recommendation, let the user drive. If they want to proceed with wiki-config, confirm and stop (they invoke it themselves). If they want manual setup, read the references and assist them - including writing files on their explicit direction. Do not automatically create the config or scaffolding without the user's clear instruction.
+5. **Manual setup** (if user chooses): Follow setup-help.md guidance, assist with file creation on explicit user direction only. Never create config or scaffolding without clear instruction.
 
 
 ---
