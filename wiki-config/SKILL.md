@@ -3,7 +3,7 @@ name: wiki-config
 description: Set up, validate, and reconfigure wiki-config.md for the llm-wiki skill suite. Use when the user says /wiki-config, asks to "set up my wiki", "configure wiki", "initialize wiki config", or when any wiki skill reports a missing or invalid config. Owns the interactive configuration flow for the wiki system.
 ---
 
-<!-- version: 1.0 -->
+<!-- version: 1.1  -->
 
 # Wiki Config
 
@@ -19,17 +19,80 @@ Filesystem read, write, search, and directory creation. If running on a surface 
 
 ## Workflow
 
-### 1 - Discover
+### Step 0 - Welcome & Initialization
 
-Identify the filesystem scope root (for filesystem MCP: `allowedDirectories`; for Claude Code: session CWD; for other surfaces: the equivalent).
+**Every time wiki-config is invoked, start here.**
 
-Check scope sensibility. If insensible (bare drive root, OS root, or user home), skip search and go straight to step 2 (Init).
+#### Show the wiki skill ecosystem
 
-If sensible, search recursively for `wiki-config.md` with first-match early termination, max 5 directory levels deep.
+Check which wiki skills are installed. Skills are typically found at `/mnt/skills/user/` or similar paths in the agent's environment. If you're unsure where skills are located on this surface, search for documentation on skill installation before proceeding.
 
-If found: report the location. Offer to validate current values (step 3) or reconfigure specific fields (step 4).
+Present this table with actual status for each skill:
 
-If not found: proceed to step 2 (Init).
+```
+## Wiki Skill Ecosystem
+
+| Skill | Status | What it does |
+|---|---|---|
+| wiki-config | ✓ | Interactive setup and validation |
+| wiki-ingest | [✓/✗] | Process raw/ → wiki pages → ingested/ |
+| wiki-query | [✓/✗] | Search wiki, cite sources, file good answers |
+| wiki-lint | [✓/✗] | Health checks: broken links, orphans |
+| wiki-integrate | [✓/✗] | Add backlinks when pages change |
+| wiki-crystallize | [✓/✗] | Distil conversations into wiki pages |
+```
+
+If any are missing: "Install from https://github.com/vanillaflava/llm-wiki-claude-skills for the full ecosystem."
+
+#### Present the welcome message
+
+"Let me read the setup guide to orient us both..."
+
+Then present:
+
+---
+
+> **Welcome to the wiki system**
+> 
+> Before we start, here's what you need to understand:
+> 
+> **Filesystem access scope** - The directory your filesystem tool can reach. This is the outer boundary. Scope your tool tightly; broad access is a privacy risk.
+> 
+> **Wiki root** - The folder inside that scope containing your Markdown notes and wiki system files (`wiki-config.md`, `index.md`, `log.md`, `raw\`, `ingested\`, `templates\`). This should be a place where you normally read your `.md` files - like a subset of your Obsidian vault, your Logseq graph, or simply the folder where you keep your Markdown notes. Skills find wiki root by looking for `wiki-config.md`.
+> 
+> Wiki root is NOT your machine root (`C:\`, `/`), NOT your user home, and not necessarily your vault root. It's a specific folder you choose for the wiki. **This is Markdown-only** - we're building a wiki of interlinked `.md` files, not Word docs or PDFs (though you can drop those in `raw\` as sources to be synthesised).
+
+---
+
+If the user seems uncertain or asks for more context, offer: "Want me to show you the full setup guide?" Then read and present `references/setup-help.md`.
+
+Otherwise proceed to assess state.
+
+#### Assess state and branch
+
+**Check filesystem scope:**
+
+Identify scope root (allowedDirectories for MCP, CWD for Code, equivalent for other surfaces).
+
+**If scope is insensible** (bare drive root, OS root, or user home):
+
+"Your filesystem access is set to `[scope]` - this is very broad and a privacy risk. I recommend scoping to just your wiki folder after setup.
+
+I need an absolute path to your wiki root. Examples:
+- Windows: `C:\Users\YourName\Documents\wiki`
+- Mac: `/Users/YourName/Documents/wiki`
+
+What's the path?"
+
+**Privacy discipline:** Never list users or enumerate system folders. Ask for path directly.
+
+**If scope is sensible:** Search for `wiki-config.md` recursively (max 5 levels deep).
+
+**Branch based on findings:**
+
+→ **Config found** - Read and show it. "You're already set up. Want to validate the config or change something?" → Step 3 (Validate) or Step 4 (Reconfigure)
+
+→ **Config not found** - "You don't have a wiki yet. I'll walk you through setup." → Step 2 (Init)
 
 ### 2 - Init
 
