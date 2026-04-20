@@ -3,7 +3,7 @@ name: wiki-ingest
 description: Process source files from the raw/ folder into synthesised wiki pages. Run after dropping articles, PDFs, notes, or data files into raw/, or when you say /wiki-ingest. Treats raw/ as a flat queue; scans all files, extracts and synthesises knowledge, creates or updates wiki pages with wikilink backlinks, then moves each source file to the appropriate ingested/ subfolder as an atomic commit; the move is the record of completion. Unreadable files move to ingested/assets/. Updates index.md and logs the operation. Blacklist applies to wiki page creation only, not file moves. Requires filesystem read/write/move access.
 ---
 
-<!-- version: 3.8 -->
+<!-- version: 4.0 -->
 
 # Wiki Ingest
 
@@ -11,100 +11,29 @@ Processes source files from the `raw/` queue into synthesised, interlinked wiki 
 
 ---
 
-## Configuration
+## Config
 
-**Wiki root is the directory containing `wiki-config.md`.** The skill derives it at runtime from the config file's location; it is not stored in the config. If the user moves the wiki, they move the config with it and nothing else changes.
+Wiki root is the directory containing `wiki-config.md`. Skills derive it at runtime.
 
-**Finding your config:** Search for `wiki-config.md` by filename across accessible directories. Do not assume a path. The directory containing `wiki-config.md` is the wiki root for this session. Read the config and extract:
-- `blacklist` - paths where wiki page creation is forbidden, relative to wiki root
-- `index_excludes` - paths excluded from index.md
-- `ingested_folder` - path to the archival folder, relative to wiki root
-- `ingested_subdirs` - archival taxonomy within ingested_folder
-- `log_format` - format string for log entries
+**Step 1 - Identify filesystem scope.** Determine the root directory the filesystem tool has access to (for filesystem MCP: `allowedDirectories`; for Claude Code: session CWD; for other surfaces: the equivalent).
 
-**Sanity-check the wiki root before writing anything:**
-- If the resolved wiki root is a bare drive root, OS root, or user home (`C:\`, `D:\`, `/`, `/home/`, `/Users/`, `C:\Users\`), stop and ask the user to confirm. A wiki root at one of these is almost always a misplaced config file.
-- If the resolved wiki root is outside the scope the MCP can actually reach, stop and tell the user. Do not attempt to widen scope.
+**Step 2 - Check scope sensibility.** If the scope root is a bare drive root (`C:\`, `D:\`, `/`), an OS root, or a user home (`C:\Users\X`, `/home/X`, `/Users/X`), do NOT search. Go to Step 4.
 
-**If `wiki-config.md` is not found - run init:**
-1. Ask the user: *"I couldn't find wiki-config.md. Please provide the absolute path to your wiki root; the folder containing your notes. This folder must be inside your MCP scope, and this is where I will write wiki-config.md."*
-2. Write `wiki-config.md` at that path using the template below. The directory you were given is the wiki root.
-3. If `index.md` does not exist at the wiki root, create it:
-   ```
-   # Wiki Index
-   *Catalogue of all wiki pages. Updated by wiki-ingest and wiki-integrate.*
-   ```
-4. If `log.md` does not exist at the wiki root, create it:
-   ```
-   # Wiki Operation Log
-   *Append-only. New entries go at the top.*
-   ```
-5. Create `ingested/` and each subdir listed in `ingested_subdirs`, plus `ingested/assets/` (always)
-6. Confirm what was created and proceed with the ingest
+**Step 3 - Bounded search.** If scope is sensible, search recursively for `wiki-config.md`. First-match early termination, max 5 directory levels deep. If found: the directory containing it is the wiki root. Read `blacklist`, `index_excludes`, `ingested_folder`, `ingested_subdirs`, `log_format`. Proceed with the skill's operation.
 
-**Config template - write frontmatter block first, then body:**
+**Step 4 - Ask once.** If not found, or scope was insensible, ask the user:
 
-```
----
-blacklist:
-  - Repositories\
+*"I couldn't find `wiki-config.md` in my accessible scope. Where is your wiki root - the folder containing your notes and `wiki-config.md`? It must be inside my filesystem scope."*
 
-index_excludes:
-  - raw\
-  - archive\
-  - ingested\
+If the user provides a specific path: look for `wiki-config.md` at that path or within it (bounded search, max 5 levels deep). If found, use the containing directory as wiki root, read config, and proceed. If not found at the provided path, go to Step 5.
 
-ingested_folder: ingested
+If the user is unclear, unsure, or declines to answer: go to Step 5.
 
-ingested_subdirs:
-  - clippings
-  - documentation
-  - papers
-  - articles
-  - data
-  - notes
+**Step 5 - Unable to proceed.** The skill cannot meaningfully operate without a configured wiki. State the situation clearly, recommend the proper setup path, and point at the bundled references:
 
-log_format: "## [YYYY-MM-DD] {type} | {subject}"
----
-```
+*"I can't operate without a configured wiki. The recommended setup path is the `/wiki-config` skill - install it (if not already available) and run it for interactive setup. If you'd rather set up manually, I have two bundled references in this skill: `references/setup-help.md` (manual setup walkthrough) and `references/wiki-config-template.md` (the default config content). I can read those and walk you through it if you want."*
 
-Then write this body after the closing `---`:
-
-```markdown
-## Configuration Guide
-
-**Wiki root** - The directory containing this `wiki-config.md` file is the wiki root. The skills derive it from the config file's location; you do not need to write the path anywhere. If you move the wiki, move this file with it (it will follow automatically). Wiki root must be inside your MCP scope or the skills cannot reach your notes.
-
-**blacklist** - Paths where wiki page creation is forbidden, relative to wiki root.
-This applies to wiki page creation only, not to file moves between raw/ and ingested/.
-Add Git repos, source code folders, or any area that should never receive wiki writes.
-
-**index_excludes** - Paths excluded from index.md tracking.
-`raw\` is always excluded; source material is indexed only after ingestion.
-`ingested\` must also be excluded; source files are not wiki pages.
-`archive\` keeps deprecated pages out of the live catalogue.
-
-**ingested_folder** - Path to the archival folder, relative to wiki root. Wiki-ingest moves
-every processed file here as an atomic commit. Must be in index_excludes; must NOT be in
-blacklist (ingest needs write access to move files here).
-
-**ingested_subdirs** - Archival taxonomy within ingested_folder. Wiki-ingest classifies each
-source and routes it to the appropriate subdir. Adapt freely; these are suggestions:
-- `clippings` - web saves, browser clips, web clipper output
-- `documentation` - product docs, API references, technical specifications
-- `papers` - academic papers, PDFs, research material
-- `articles` - blog posts, news, long-form reading
-- `data` - CSV, JSON, structured datasets
-- `notes` - freeform drafts, quick captures, anything else
-`ingested/assets/` is always created; it holds files that could not be read or extracted.
-
-**Property type conflict warning:** Some note-taking apps infer a type for each frontmatter
-property (text, list, date, etc.). If any property name in this config conflicts with a property
-of a different type elsewhere in your vault or used by a plugin, rename the field here and in
-your live wiki-config.md. Inform your agent of any change so it reads the correct field names.
-
-**log_format** - Do not change without updating all wiki skills.
-```
+After this recommendation, let the user drive. If they want to proceed with wiki-config, confirm and stop (they invoke it themselves). If they want manual setup, read the references and assist them - including writing files on their explicit direction. Do not automatically create the config or scaffolding without the user's clear instruction.
 
 ---
 

@@ -1,6 +1,6 @@
 # llm-wiki-claude-skills
 
-Five Claude agent skills for building and maintaining a personal knowledge wiki using Markdown files, wikilinks, and filesystem access.
+Six Claude agent skills for building and maintaining a personal knowledge wiki using Markdown files, wikilinks, and filesystem access.
 
 ## What this is
 
@@ -28,22 +28,23 @@ What I am adding to it is just my own preferences in workflow (while keeping the
 | State tracking     | `log.md` records what's processed                 | Presence in `ingested/` is the record; `log.md` is audit-only (no reading of what has already been ingested, re-ingestion accidental or not works well enough)                                                 |
 | Query compounding  | "Good answers can be filed back" (noted as a tip) | `/crystallize` as a first-class operation - primary mechanism for accumulating chat knowledge, every long session, every major change, archiving a heavy chat -> it compounds and enriches the next bootstrap. |
 | Session bootstrap  | Schema document                                   | The wiki and domain home pages are the bootstrap - the wiki is the persistent context                                                                                                                          |
-| Configuration      | Suggestions for structure                         | `wiki-config.md` read by all five skills; configure once                                                                                                                                                       |
+| Configuration      | Suggestions for structure                         | `wiki-config.md` read by all six skills; configure once                                                                                                                                                        |
 | Source attribution | Not specified                                     | `changes:` frontmatter field traces each wiki page back to its source in `ingested/` (still a work in process, as many sources accumulate over time)                                                           |
 
 The most satisfying thing that emerged from looking at other implementations and attempting to build this myself was `/crystallize`. Karpathy observes that query answers are valuable and shouldn't disappear into chat history. This isn't about a fully automated self-maintaining archival machine either. He stresses that staying involved is important, asking questions and learning from the answers is the whole point. The LLM is the previously absent bookkeeper, the flagger of stale content, conflicting information and orphaned treasures in a sea of markdown. I had already been prompting summaries of heavy chats, and cycling them out for a fresh instance. Now distilling a long working session into a wiki page became the primary way my projects accumulate knowledge from conversations.  Domain home pages (think -> wiki hubs) serve as structured session bootstraps - previously that context lived in manually written summaries. Now the wiki itself is the persistent context across sessions.
 
-## The five skills
+## The six skills
 
 | Skill              | What it does                                                                                                                                                                                                                                                                |
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `wiki-config`      | Sets up, validates, and reconfigures `wiki-config.md` and the directory scaffolding. Run once at cold start; or any time you want to inspect or change your config interactively                                                                                            |
 | `wiki-ingest`      | Processes files from `raw/` into wiki pages; classifies, synthesises, cross-references, and moves each file to `ingested/` as an atomic commit                                                                                                                              |
 | `wiki-query`       | Answers questions by reading the wiki index and relevant pages; cites sources; can file valuable answers as new wiki pages                                                                                                                                                  |
 | `wiki-lint`        | Health-checks the wiki: broken links, orphaned pages, missing index entries, unreferenced sources in `ingested/`                                                                                                                                                            |
 | `wiki-integrate`   | Weaves a new or updated page into the knowledge graph by adding backlinks and index entries                                                                                                                                                                                 |
 | `wiki-crystallize` | Distils a working session or accumulated conversation into a structured wiki page (biased toward updating existing hubs and the overview.md, as the top level summary of everything that is known). You can teach your LLM to adopt a structure that serves your workflow.  |
 
-Use them individually or together. A minimal setup is `wiki-ingest` and `wiki-query`. Add the others as your wiki grows.
+Use them individually or together. A minimal setup is `wiki-config` (once) plus `wiki-ingest` and `wiki-query`. Add the others as your wiki grows.
 
 ## Requirements
 
@@ -59,19 +60,25 @@ Use them individually or together. A minimal setup is `wiki-ingest` and `wiki-qu
 2. In Claude Desktop, go to **Customize → Skills**
 3. Upload each `.skill` file
 
-That's it. The skills appear in your skill list and activate automatically when relevant via conversation (the header visible in the install GUI hints at what kind of things trigger it), or via slash commands (`/wiki-ingest`, `/wiki-query`, `/wiki-lint`, `/wiki-integrate`, `/wiki-crystallize`). After a few cycles, the LLM learns to suggest them organically. 
+That's it. The skills appear in your skill list and activate automatically when relevant via conversation (the header visible in the install GUI hints at what kind of things trigger it), or via slash commands (`/wiki-config`, `/wiki-ingest`, `/wiki-query`, `/wiki-lint`, `/wiki-integrate`, `/wiki-crystallize`). After a few cycles, the LLM learns to suggest them organically. 
 
 ## Getting started
 
-**1. (optional) Set up before first use**
+**1. Set up your wiki**
 
-The skills will search for `wiki-config.md` anywhere inside the MCP-accessible scope and offer to create one on first use if it's not found. **The directory containing `wiki-config.md` is the wiki root.** If you'd rather set it up yourself first, create a file called `wiki-config.md` at your intended wiki root with this content:
+The recommended path: run `/wiki-config` and walk through the interactive setup. It asks where your wiki root should live, creates `wiki-config.md` with sensible defaults, and scaffolds the directory structure (`index.md`, `log.md`, `raw/`, `ingested/`, `templates/`). You then edit the `blacklist` field (it ships with obvious placeholder values that you must replace before the wiki is useful).
+
+**The directory containing `wiki-config.md` is the wiki root.** Skills derive it from the file's location at runtime; you never write a path anywhere. If you move the wiki, move this file with it and nothing else changes.
+
+If `/wiki-config` is not installed and you run any of the other skills, they will look for `wiki-config.md` in their accessible scope, and if they cannot find it they will recommend installing `/wiki-config` or point you at their bundled `references/setup-help.md` for manual setup. The skills themselves do not create scaffolding on first use; that is `/wiki-config`'s job.
+
+If you prefer to set things up by hand, create `wiki-config.md` at your intended wiki root with this content:
 
 ```yaml
 ---
 blacklist:
-  - Repositories\
-  - PrivateFolder\
+  - Folder(s) where the wiki should not write
+  - You can edit these
 
 index_excludes:
   - raw\
@@ -88,21 +95,27 @@ ingested_subdirs:
   - data
   - notes
 
+templates_folder: templates\
+
 log_format: "## [YYYY-MM-DD] {type} | {subject}"
 ---
 ```
 
-Then add this body below the closing `---` (the skills generate this automatically, but it's useful to have when editing manually):
+Path style note: examples use Windows backslash (`\`). On Mac or Linux, use forward slash (`/`) instead; YAML itself is agnostic.
 
-**Wiki root:** The directory containing `wiki-config.md` is the wiki root. The skills derive it from the config file's location; you do not write the path anywhere. If you move the wiki, move this file with it and nothing else changes. Your wiki root must be inside your MCP's allowed scope or the skills cannot reach your notes.
+Then add this body below the closing `---` (the skill generates this automatically, but it's useful to have when editing manually):
 
-**blacklist:** Paths where wiki page creation is forbidden, relative to wiki root. Add Git repos, source code folders, or any area that should never receive wiki writes.
+**Wiki root:** The directory containing `wiki-config.md` is the wiki root. The skills derive it from the config file's location; you do not write the path anywhere. If you move the wiki, move this file with it and nothing else changes. Your wiki root must be inside your filesystem tool's allowed scope or the skills cannot reach your notes.
+
+**blacklist:** Paths where wiki page creation is forbidden, relative to wiki root. The placeholder values above MUST be replaced with real folder names before the wiki is useful. Add Git repos, private folders, source trees, or any area that should never receive wiki writes.
 
 **index_excludes:** Paths excluded from `index.md` tracking. `raw\` and `ingested\` are always excluded; source files are not wiki pages.
 
 **ingested_folder:** Folder where processed source files are archived, relative to wiki root. Must be in `index_excludes`; must not be in `blacklist`.
 
 **ingested_subdirs:** Archival taxonomy within `ingested_folder`. The skill classifies each source and routes it to the appropriate subfolder. Adapt freely; these are just suggestions. `ingested/assets/` is always created for files that couldn't be read or extracted.
+
+**templates_folder:** Reserved for the page-templates system landing in a future release. The folder is created empty during setup. Nothing in the current release reads this field yet; safe to leave as-is.
 
 **log_format:** Do not change without updating all wiki skills.
 
@@ -115,11 +128,12 @@ your-wiki/
 ├── index.md           ← page catalog (agent maintains this)
 ├── log.md             ← audit trail (agent maintains this)
 ├── raw/               ← drop source files here
-└── ingested/          ← agent archives processed files here
-    ├── clippings/
-    ├── documentation/
-    ├── articles/
-    └── notes/
+├── ingested/          ← agent archives processed files here
+│   ├── clippings/
+│   ├── documentation/
+│   ├── articles/
+│   └── notes/
+└── templates/         ← reserved for future page-templates system (empty for now)
 ```
 
 **2. Write a CLAUDE.md**
@@ -128,9 +142,9 @@ A short document that tells the agent: where things live, what conventions to fo
 
 **3. Drop a file in raw/ and say `/wiki-ingest`**
 
-The agent will read the source, synthesise a wiki page, update the index, and move the file to `ingested/`. That's the basic loop. 
+The agent will read the source, synthesise a wiki page, update the index, and move the file to `ingested/`. That's the basic loop.
 
-From here you can co-work with your LLM on the wiki to add new sources, ask question, and refine them; and when you reach milestones, use /wiki-crystallize to use the LLM's build-up context to synthesise and update all pages this new concept is connected to (and correct stale references, wikilinks etc.). Your LLM will adapt to your personal pattern and you can use CLAUDE.md to nudge its behaviour to your preferences.
+From here you can co-work with your LLM on the wiki to add new sources, ask questions, and refine them; and when you reach milestones, use /wiki-crystallize to use the LLM's build-up context to synthesise and update all pages this new concept is connected to (and correct stale references, wikilinks etc.). Your LLM will adapt to your personal pattern and you can use CLAUDE.md to nudge its behaviour to your preferences.
 
 ## Privacy
 
