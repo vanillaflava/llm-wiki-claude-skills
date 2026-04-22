@@ -3,7 +3,7 @@ name: wiki-lint
 description: Health-check the wiki. Scans all pages for broken wikilinks, orphaned pages, stale index entries, missing connections between related pages, em-dash violations in page titles and filenames, orphaned binary assets, and orphaned sources in ingested/. Produces a dated lint report in archive/. Use when you say /wiki-lint or periodically to maintain knowledge graph health. Never auto-fixes anything; report only. Requires filesystem read access and write access to archive/.
 ---
 
-<!-- version: 3.3 -->
+<!-- version: 3.4 -->
 
 # Wiki Lint
 
@@ -15,21 +15,25 @@ Health-checks the wiki and produces a report. Never modifies wiki content.
 
 **Every invocation starts here.** Wiki root is the directory containing `wiki-config.md`. Skills derive it at runtime. Pages this skill lints are checked against the structure in `wiki-schema.md` - both files need to be present.
 
-1. **Identify scope**: Determine filesystem scope root (allowedDirectories for MCP, CWD for Code, equivalent for other surfaces)
+1. **Identify scope**: Determine filesystem scope root (allowedDirectories for MCP, CWD for Code, equivalent for other surfaces).
 
-2. **Scope check**: If scope is bare drive root (`C:\`, `D:\`, `/`), OS root, or user home (`C:\Users\X`, `/home/X`, `/Users/X`) → skip to step 5 (do not search for privacy)
+2. **Scope check**: If scope is bare drive root (`C:\`, `D:\`, `/`), OS root, or user home (`C:\Users\X`, `/home/X`, `/Users/X`) → skip to step 6 (do not search for privacy).
 
 3. **Scan `<available_skills>` for `wiki-config`.** Note whether it's available - this shapes the recommendations below. The bundled `references/setup-help.md` is also available; read it if the user needs orientation or if you get stuck.
 
-4. **Search and assess**: Search recursively for `wiki-config.md` (first-match, max 5 levels). If found, read it (`blacklist`, `index_excludes`, `ingested_folder`, `ingested_subdirs`, `log_format`) and look for `wiki-schema.md` in the same directory. Then:
+4. **Locate and read `wiki-config.md`**: Search recursively (first-match, max 5 levels). If found, read it (`blacklist`, `index_excludes`, `ingested_folder`, `ingested_subdirs`, `log_format`). If not found, skip to step 6.
 
-   - **Both present and parse cleanly** → read the schema (`mandatory_fields`, `conditional_fields`, `enums`) and proceed with skill operation.
-   
-   - **One or both missing** → recommend `/wiki-config` as the easiest path; it deploys both files and walks through setup in a minute. If wiki-config isn't available, or the user wants to press on without it, offer to deploy the missing file(s) from `references/wiki-config-template.md` and/or `references/wiki-schema.md`, then remind them to run `/wiki-config` later for fine-tuning (especially the `blacklist` placeholders in `wiki-config.md`).
-   
-   - **One or both malformed** → recommend `/wiki-config` - it has a guided repair flow and is safer here than a blind overwrite. If wiki-config isn't available, point the user at `references/setup-help.md` for manual repair guidance. If the user insists on a reset anyway, warn that resetting overwrites any customizations they've made, then deploy the default from references on their explicit OK.
+5. **Locate and read `wiki-schema.md` - mandatory check**: In the same directory as `wiki-config.md`, verify `wiki-schema.md` exists and parses as YAML. **Do not proceed to the Workflow below until you have a definite verdict** (present / missing / malformed). Then:
 
-5. **Config not found at all**: Ask the user for their wiki root path, search there (bounded, max 5 levels). If still nothing, they don't have a wiki yet - same cascade as "missing" above.
+   - **Present and parses cleanly** → read the schema (`mandatory_fields`, `conditional_fields`, `enums`) and proceed to the Workflow.
+   
+   - **Missing** → stop. Recommend `/wiki-config` as the easiest path; it deploys both files and walks through setup in a minute. If wiki-config isn't available or the user wants to press on without it, offer to deploy `wiki-schema.md` from `references/wiki-schema.md`, then remind them to run `/wiki-config` later for fine-tuning (especially `blacklist` placeholders in `wiki-config.md`).
+   
+   - **Malformed** → stop. Recommend `/wiki-config` - it has a guided repair flow that is safer than a blind overwrite. If wiki-config isn't available, point to `references/setup-help.md` for manual repair. If the user insists on a reset, warn that it overwrites any customizations they've made, then deploy the default on their explicit OK.
+
+   The same logic applies if `wiki-config.md` itself was found malformed in step 4: recommend `/wiki-config` for guided repair; warn before overwriting.
+
+6. **Config not found at all**: Ask the user for their wiki root path, search there (bounded, max 5 levels). If still nothing, they don't have a wiki yet - follow the "Missing" branch above (recommend `/wiki-config`; offer bundled deployment if unavailable).
 
 ---
 
@@ -38,6 +42,8 @@ Health-checks the wiki and produces a report. Never modifies wiki content.
 This skill requires **filesystem read access** (to scan all pages) and **write access to `archive/`** (to file the lint report). If read access is unavailable, this skill cannot proceed.---
 
 ## Workflow
+
+Config Discovery has already loaded `wiki-config.md` and `wiki-schema.md` into context. Do not re-read them; proceed from here assuming both are available.
 
 ### Step 1 - Build the page inventory
 
