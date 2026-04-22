@@ -9,3 +9,8 @@ CLAUDE.md
 # wiki-pack skill and binary - kept local until ready to ship publicly
 wiki-pack/
 wiki-pack.skill
+
+# Improvised helper scripts (agent-created workarounds, never commit)
+/_*.bat
+/_*.ps1
+/_*.sh
