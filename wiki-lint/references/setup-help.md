@@ -2,7 +2,7 @@
 
 **What this is:** A personal knowledge wiki that compounds over time. You add sources; your agent reads, synthesises, and files them into interlinked wiki pages. You ask questions; your agent reads the wiki and answers with citations. Each source and each good question makes it richer.
 
-This guide helps when `wiki-config.md` cannot be found. The recommended path is `/wiki-config` - it handles everything below interactively with validation. For full context (ecosystem background, privacy model, Karpathy's pattern), see the [llm-wiki-claude-skills README](https://github.com/vanillaflava/llm-wiki-claude-skills).
+This guide helps when `wiki-config.md` or `wiki-schema.md` cannot be found. The recommended path is `/wiki-config` - it handles everything below interactively with validation, and it is the only skill that can deploy `wiki-schema.md`. For full context (ecosystem background, privacy model, Karpathy's pattern), see the [llm-wiki-claude-skills README](https://github.com/vanillaflava/llm-wiki-claude-skills).
 
 ---
 
@@ -16,6 +16,8 @@ This guide helps when `wiki-config.md` cannot be found. The recommended path is 
 | **wiki-lint** | Health checks: broken links, orphaned pages, unreferenced sources |
 | **wiki-integrate** | Weaves new/updated pages into the knowledge graph with backlinks |
 | **wiki-crystallize** | Distils working sessions into structured wiki pages; updates hubs and overview |
+
+**First-time setup - mandatory:** Run `/wiki-config` at least once before any other wiki skill. It deploys both `wiki-config.md` (settings) and `wiki-schema.md` (the frontmatter structure for all wiki pages). The operational skills refuse to proceed if `wiki-schema.md` is missing or malformed, and only `/wiki-config` can deploy or repair it.
 
 **Minimal setup:** wiki-config (once) + wiki-ingest + wiki-query. Add the others as your wiki grows.
 
@@ -35,6 +37,7 @@ Your machine
     ├── Archive/       ← legacy notes
     └── Agent Access/  ← wiki root (ONLY folder agent needs)
         ├── wiki-config.md
+        ├── wiki-schema.md
         ├── index.md, log.md
         ├── raw/, ingested/, templates/
         └── ... wiki pages
@@ -48,9 +51,13 @@ Wiki root is **NOT** your machine root (`C:\`, `/`), **NOT** your user home (`~/
 
 ## Quick setup (manual path)
 
-### 1. Create wiki-config.md
+### 1. Create wiki-config.md and wiki-schema.md
 
-At `<your-wiki-root>/wiki-config.md`:
+**Recommended:** Run `/wiki-config` - it deploys both files with correct defaults and is the only reliable way to get `wiki-schema.md` right.
+
+**Manual path:** at `<your-wiki-root>/`, create both files.
+
+First, `wiki-config.md`:
 
 ```yaml
 ---
@@ -80,11 +87,13 @@ log_format: "## [YYYY-MM-DD] {type} | {subject}"
 ---
 ```
 
+Then `wiki-schema.md`: copy from the skill's `references/wiki-schema.md` - every operational skill bundles an identical read-only reference copy. Do not hand-write the schema; the bundled file is the authoritative default. The operational skills will refuse to proceed if the schema is missing or malformed.
+
 **Path style:** Examples use Windows backslash (`\`). On Mac/Linux, use forward slash (`/`).
 
 ### 2. Create directory scaffolding
 
-Alongside `wiki-config.md`:
+Alongside `wiki-config.md` and `wiki-schema.md`:
 - `index.md` with header `# Wiki Index`
 - `log.md` with header `# Wiki Operation Log`  
 - `raw/` (drop source files here)
@@ -119,8 +128,8 @@ Your agent reads the source, synthesises a wiki page, updates the index, and arc
 
 ## For interactive setup
 
-Install `/wiki-config` for guided setup with validation and reconfiguration. The manual path above works equally well - `/wiki-config` is a convenience, not a requirement.
+Install `/wiki-config` for guided setup with validation and reconfiguration. It is the recommended path because it is the only skill that can deploy and repair `wiki-schema.md` reliably. Manual setup works if wiki-config is not installed, but you must copy the bundled `wiki-schema.md` from any operational skill's `references/` folder; do not hand-write it.
 
 ## Retry your command
 
-Once `wiki-config.md` and directory scaffolding exist at your wiki root, retry whatever command brought you here.
+Once `wiki-config.md`, `wiki-schema.md`, and directory scaffolding exist at your wiki root, retry whatever command brought you here.

@@ -3,7 +3,7 @@ name: wiki-integrate
 description: Weave a newly created or significantly updated wiki page into the knowledge graph. Adds it to index.md if missing, finds related pages by topic overlap, and adds backlinks in both directions. Use when you say /wiki-integrate, when a new page has just been created directly in a chat, or when a page has been significantly revised and needs connecting. Lightweight; does not rewrite content, only adds links and index entries. Requires filesystem read/write access.
 ---
 
-<!-- version: 3.2 -->
+<!-- version: 3.3 -->
 
 # Wiki Integrate
 
@@ -13,22 +13,23 @@ Connects a new or updated wiki page into the knowledge graph by adding backlinks
 
 ## Config Discovery
 
-**Every invocation starts here.** Wiki root is the directory containing `wiki-config.md`. Skills derive it at runtime.
+**Every invocation starts here.** Wiki root is the directory containing `wiki-config.md`. Skills derive it at runtime. Pages this skill writes to follow the structure in `wiki-schema.md` - both files need to be present.
 
 1. **Identify scope**: Determine filesystem scope root (allowedDirectories for MCP, CWD for Code, equivalent for other surfaces)
 
-2. **Scope check**: If scope is bare drive root (`C:\`, `D:\`, `/`), OS root, or user home (`C:\Users\X`, `/home/X`, `/Users/X`) → skip to step 4 (do not search for privacy)
+2. **Scope check**: If scope is bare drive root (`C:\`, `D:\`, `/`), OS root, or user home (`C:\Users\X`, `/home/X`, `/Users/X`) → skip to step 5 (do not search for privacy)
 
-3. **Bounded search**: Search recursively for `wiki-config.md` (first-match, max 5 levels). If found → read config (`blacklist`, `index_excludes`, `ingested_folder`, `ingested_subdirs`, `log_format`), proceed with skill operation
+3. **Scan `<available_skills>` for `wiki-config`.** Note whether it's available - this shapes the recommendations below. The bundled `references/setup-help.md` is also available; read it if the user needs orientation or if you get stuck.
 
-4. **Config not found** (scope was insensible OR search returned empty):
-   - **Get oriented first**: Check if wiki-config skill is available (scan `<available_skills>` section for `wiki-config` entry), then read `references/setup-help.md` to load setup context
-   - **Then ask**: "I couldn't find `wiki-config.md`. Where is your wiki root - the folder containing your notes and `wiki-config.md`?"
-   - If user provides path: search there (bounded, max 5 levels). If found → read config, proceed. If not found or user is unsure → offer setup paths:
-     - If wiki-config available: "Run `/wiki-config` for guided setup"
-     - If not: "Install wiki-config skill for guided setup, or I can help with manual setup using the references I've loaded"
+4. **Search and assess**: Search recursively for `wiki-config.md` (first-match, max 5 levels). If found, read it (`blacklist`, `index_excludes`, `ingested_folder`, `ingested_subdirs`, `log_format`) and look for `wiki-schema.md` in the same directory. Then:
 
-5. **Manual setup** (if user chooses): Follow setup-help.md guidance, assist with file creation on explicit user direction only. Never create config or scaffolding without clear instruction.
+   - **Both present and parse cleanly** → read the schema (`mandatory_fields`, `conditional_fields`, `enums`) and proceed with skill operation.
+   
+   - **One or both missing** → recommend `/wiki-config` as the easiest path; it deploys both files and walks through setup in a minute. If wiki-config isn't available, or the user wants to press on without it, offer to deploy the missing file(s) from `references/wiki-config-template.md` and/or `references/wiki-schema.md`, then remind them to run `/wiki-config` later for fine-tuning (especially the `blacklist` placeholders in `wiki-config.md`).
+   
+   - **One or both malformed** → recommend `/wiki-config` - it has a guided repair flow and is safer here than a blind overwrite. If wiki-config isn't available, point the user at `references/setup-help.md` for manual repair guidance. If the user insists on a reset anyway, warn that resetting overwrites any customizations they've made, then deploy the default from references on their explicit OK.
+
+5. **Config not found at all**: Ask the user for their wiki root path, search there (bounded, max 5 levels). If still nothing, they don't have a wiki yet - same cascade as "missing" above.
 
 
 ---

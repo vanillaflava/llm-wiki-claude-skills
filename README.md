@@ -37,7 +37,7 @@ The most satisfying thing that emerged from looking at other implementations and
 
 | Skill              | What it does                                                                                                                                                                                                                                                                |
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `wiki-config`      | Sets up, validates, and reconfigures `wiki-config.md` and the directory scaffolding. Run once at cold start; or any time you want to inspect or change your config interactively                                                                                            |
+| `wiki-config`      | Sets up, validates, and reconfigures `wiki-config.md`, `wiki-schema.md`, and the directory scaffolding. Your interactive companion for inspecting, editing, resetting, or repairing either file. Start here - it deploys both files and scaffolds the directories in one guided step.                                                                                            |
 | `wiki-ingest`      | Processes files from `raw/` into wiki pages; classifies, synthesises, cross-references, and moves each file to `ingested/` as an atomic commit                                                                                                                              |
 | `wiki-query`       | Answers questions by reading the wiki index and relevant pages; cites sources; can file valuable answers as new wiki pages                                                                                                                                                  |
 | `wiki-lint`        | Health-checks the wiki: broken links, orphaned pages, missing index entries, unreferenced sources in `ingested/`                                                                                                                                                            |
@@ -66,11 +66,11 @@ That's it. The skills appear in your skill list and activate automatically when 
 
 **1. Set up your wiki**
 
-The recommended path: run `/wiki-config` and walk through the interactive setup. It asks where your wiki root should live, creates `wiki-config.md` with sensible defaults, and scaffolds the directory structure (`index.md`, `log.md`, `raw/`, `ingested/`, `templates/`). You then edit the `blacklist` field (it ships with obvious placeholder values that you must replace before the wiki is useful).
+Easiest way: run `/wiki-config`. It asks where your wiki should live, creates both `wiki-config.md` (your settings) and `wiki-schema.md` (the shape your pages follow), and scaffolds the directory structure - `index.md`, `log.md`, `raw/`, `ingested/`, `templates/`. Takes about a minute. You'll then want to replace the placeholder values in `wiki-config.md`'s `blacklist` field with the actual folders you want to keep off-limits to wiki writes.
 
-**The directory containing `wiki-config.md` is the wiki root.** Skills derive it from the file's location at runtime; you never write a path anywhere. If you move the wiki, move this file with it and nothing else changes.
+**The directory containing `wiki-config.md` is your wiki root.** Skills derive it at runtime from the file's location; you never write a path anywhere. If you relocate the wiki, move both `wiki-config.md` and `wiki-schema.md` with it and everything still works.
 
-If `/wiki-config` is not installed and you run any of the other skills, they will look for `wiki-config.md` in their accessible scope, and if they cannot find it they will recommend installing `/wiki-config` or point you at their bundled `references/setup-help.md` for manual setup. The skills themselves do not create scaffolding on first use; that is `/wiki-config`'s job.
+If `/wiki-config` is not installed, the other skills can help - each bundles the same templates as read-only references and will offer to get you set up when you run them. Manual setup works too if you prefer to work with files directly; the config and schema YAML are below, along with field explanations.
 
 If you prefer to set things up by hand, create `wiki-config.md` at your intended wiki root with this content:
 
@@ -119,11 +119,69 @@ Then add this body below the closing `---` (the skill generates this automatical
 
 **log_format:** Do not change without updating all wiki skills.
 
+Then create `wiki-schema.md` alongside it. This file defines the frontmatter fields every wiki page uses and the valid values for enumerated fields. Skills read it on boot alongside `wiki-config.md` and consult it whenever they write a page.
+
+```yaml
+---
+# Wiki Page Schema v1.0
+# Read by all wiki skills on boot to know what fields pages use.
+# Managed by wiki-config - run /wiki-config to view, edit, reset, or repair.
+
+schema_version: "1.0"
+
+# Mandatory fields - every wiki page must have these
+mandatory_fields:
+  title: string
+  version: string
+  date: date          # YYYY-MM-DD
+  changes: string     # quoted, <80 chars, no paths
+  page_type: enum     # see enums below
+
+# Conditional fields - written when context applies
+conditional_fields:
+  updated: date                    # any skill touch, YYYY-MM-DD
+  status: enum                     # default: active
+  description: string              # ~200 chars, quoted
+  crystallize_count: integer       # wiki-crystallize only, starts at 1
+  source: list                     # always a list, even for single origin
+  reliability: enum                # only meaningful when source present
+
+# Valid enum values
+enums:
+  page_type:
+    - knowledge
+    - reference
+    - survey
+    - research-note
+    - domain-home
+    - overview
+    - home
+    - log
+    - index
+    - config
+  status:
+    - active
+    - stub
+    - artefact
+    - archived
+    - snapshot
+  reliability:
+    - high
+    - medium
+    - low
+---
+```
+
+The easiest way to get a correct `wiki-schema.md` is to copy it from any skill's `references/wiki-schema.md` - they all bundle an identical read-only reference copy. Running `/wiki-config` does this for you in one step, and also includes a guided schema editor if you later want to extend it.
+
+The bundled defaults are the minimum coherent set. You can safely extend the schema - add conditional fields, extend enum value lists to fit your own categories. Removing mandatory fields or renaming existing ones isn't recommended; skills depend on those being where they expect.
+
 The resulting directory structure looks like this:
 
 ```
 your-wiki/
 ├── wiki-config.md
+├── wiki-schema.md     ← frontmatter structure for all wiki pages
 ├── CLAUDE.md          ← tells the agent how your wiki works (see below)
 ├── index.md           ← page catalog (agent maintains this)
 ├── log.md             ← audit trail (agent maintains this)
@@ -140,11 +198,16 @@ your-wiki/
 
 A short document that tells the agent: where things live, what conventions to follow, and which domain home pages to read for context. Start simple - one paragraph is enough. The wiki improves this document over time.
 
-**3. Drop a file in raw/ and say `/wiki-ingest`**
+**3. Start putting it to work**
 
-The agent will read the source, synthesise a wiki page, update the index, and move the file to `ingested/`. That's the basic loop.
+If you're starting fresh, drop a clipping, a research paper, or a document you've been meaning to read into `raw/`, say `/wiki-ingest`, and watch it become a wiki page. If you already have a notes collection or vault, point the agent at a domain you work in and let it help you set up a Domain Home - a hub page it can use to orient future sessions.
 
-From here you can co-work with your LLM on the wiki to add new sources, ask questions, and refine them; and when you reach milestones, use /wiki-crystallize to use the LLM's build-up context to synthesise and update all pages this new concept is connected to (and correct stale references, wikilinks etc.). Your LLM will adapt to your personal pattern and you can use CLAUDE.md to nudge its behaviour to your preferences.
+Some good early moves:
+- **Ingest a small batch of sources** you've been meaning to read. The first time you query across them, the pattern starts to click.
+- **Discuss your existing Domain Homes**, or set up a new one for a topic you care about. These become the bootstrap context for future sessions.
+- **End a rich working session with `/wiki-crystallize`.** It distils the durable signal from a conversation into wiki pages, so the next session starts from something structured rather than from chat scrollback.
+
+From here, co-work with your LLM: add sources, ask questions, refine pages. Your LLM will adapt to your personal pattern; use `CLAUDE.md` to nudge its behaviour to your preferences.
 
 ## Privacy
 
