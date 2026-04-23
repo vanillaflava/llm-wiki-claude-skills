@@ -244,6 +244,8 @@ What happens to your data once it reaches your provider depends on their privacy
 
 [tasknotes-claude-skill](https://github.com/vanillaflava/tasknotes-claude-skill) is a complementary skill for basic task management against a local Obsidian vault with the [TaskNotes ](https://tasknotes.dev/) plugin installed. I am not affiliated with that project, but their 'one note per task' principle works extremely well with the llm-wiki pattern and these skills. It was my first 'learning how to build agent skills project' (my complementary Claude skill is basic, the official plugin is anything but). Have a look if you are using Obsidian, and/or have no task management skill or MCP wired up. 
 
+Made with ![Obsidian](https://img.shields.io/badge/Obsidian-%23483699.svg?style=for-the-badge&logo=obsidian&logoColor=white) ![Claude](https://img.shields.io/badge/Claude-D97757?style=for-the-badge&logo=claude&logoColor=white)
+
 It is not required - any task management approach you prefer has the same effect, and there are many out there. The wiki skills have no dependency on it. The TaskNotes skill is noted here because it was designed to work alongside this system, and adds turning knowledge into action, planning and step-by-step processes. The wiki pattern works equally well with a folder of task files, a paper notebook, or any tool of your choice.
 
 ## License
