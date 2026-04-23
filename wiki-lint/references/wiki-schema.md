@@ -80,7 +80,7 @@ Every page a skill writes must include all five:
 |---|---|
 | `title:` | Must match the H1 heading exactly. Quote if the value contains a colon. |
 | `version:` | Start at 1.0. Increment minor (1.1) for additions, major (2.0) for structural rewrites. |
-| `date:` | ISO 8601 date of this version. Date only - no timestamp. |
+| `date:` | Creation date. Set once at page creation, never modified by skills on subsequent writes. YYYY-MM-DD only, no timestamp. |
 | `changes:` | One sentence. Never a file path. Never an em-dash. Always quoted. |
 | `page_type:` | Controls how skills handle the page. Use values from the `page_type` enum above. |
 
@@ -90,10 +90,10 @@ Written by skills when context applies. Not required on every page.
 
 | Field | Written by | When | Key rules |
 |---|---|---|---|
-| `updated:` | Any wiki skill on touch | Every skill write | YYYY-MM-DD; captures last skill contact date |
+| `updated:` | Any wiki skill on touch | Every skill write | YYYY-MM-DD; captures last skill contact date. On page creation, equals `date:` - this is expected and correct. Writing `updated:` alone does not require a version bump. wiki-lint staleness threshold: 90 days; exempt status artefact, snapshot, archived. |
 | `status:` | wiki-ingest on create; any skill on state change | Every page | Default `active`; write `stub` if body is minimal at create; skills never downgrade existing value |
 | `description:` | wiki-ingest, wiki-crystallize | Every page | ~200 chars, quoted; LLM bookkeeping - not human territory |
-| `crystallize_count:` | wiki-crystallize only | Every crystallize write | Integer, starts at 1; counts deliberate crystallize events only - not general edits |
+| `crystallize_count:` | wiki-crystallize only | Every crystallize write | Integer. Read current value and add 1; if field is absent, write 1. Counts deliberate crystallize events only - not general edits. |
 | `source:` | wiki-ingest on create | When page has an ingested origin | Always a list, even for single origin: `["ingested/clippings/foo.md"]` |
 | `reliability:` | wiki-ingest on create | Only when `source:` is present | Use minimum value when multiple sources contributed; omit entirely when no source |
 

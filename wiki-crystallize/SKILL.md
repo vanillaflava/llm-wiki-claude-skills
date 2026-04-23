@@ -3,7 +3,7 @@ name: wiki-crystallize
 description: Distil a long chat thread, accumulated research session, or working document into a structured wiki page capturing the current state of knowledge on the topic. Run when you say /wiki-crystallize, when a chat is getting heavy, or before closing a long-running thread. The chat is the scaffolding; the wiki page is the artefact. Requires filesystem read/write access.
 ---
 
-<!-- version: 3.7 -->
+<!-- version: 3.8 -->
 
 # Wiki Crystallize
 
@@ -115,7 +115,7 @@ Read the full current content of the target page. Integrate the crystallized kno
 - Add new decisions, findings, or open questions to the appropriate sections
 - Update any sections that are now out of date
 - Do not duplicate content already present; synthesise and merge
-- Update the frontmatter version, date, and changes fields
+- Update the frontmatter `version:`, `changes:`, and `updated:` fields. Leave `date:` unchanged - it is the creation date. Increment `crystallize_count:`: read the current value and add 1; if the field is absent, write 1.
 
 ### Step 4b - Write a new page
 
@@ -124,7 +124,9 @@ Read the full current content of the target page. Integrate the crystallized kno
 title: Topic - Current State
 version: 1.0
 date: YYYY-MM-DD
-changes: Crystallized from [source chat / session description]
+updated: YYYY-MM-DD
+crystallize_count: 1
+changes: "Crystallized from [source chat / session description]"
 ---
 
 # Topic - Current State
@@ -185,7 +187,7 @@ Note: context window fullness cannot be precisely measured from within the skill
 
 1. **Distil, do not transcribe:** the wiki page should be significantly shorter and more structured than the source
 2. **Keep the durable, discard the scaffolding:** be ruthless about what compounds value
-3. **Frontmatter on every page:** title, version, date, changes: "Crystallized from [source]"
+3. **Frontmatter on every page:** title, version, date (creation, immutable), updated (today), crystallize_count (1 on create; read-then-increment on update), changes: "Crystallized from [source]"
 4. **Never write to blacklisted paths**
 5. **Update Overview.md sparingly:** only for genuinely significant knowledge shifts
 6. **Wikilinks make it searchable:** always add links to related pages

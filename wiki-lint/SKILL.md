@@ -3,7 +3,7 @@ name: wiki-lint
 description: Health-check the wiki. Scans all pages for broken wikilinks, orphaned pages, stale index entries, missing connections between related pages, em-dash violations in page titles and filenames, orphaned binary assets, and orphaned sources in ingested/. Produces a dated lint report in archive/. Use when you say /wiki-lint or periodically to maintain knowledge graph health. Never auto-fixes anything; report only. Requires filesystem read access and write access to archive/.
 ---
 
-<!-- version: 3.7 -->
+<!-- version: 3.9 -->
 
 # Wiki Lint
 
@@ -95,6 +95,21 @@ For each in-scope page:
 
 Flag each occurrence as an **em-dash violation** with the file path, where it was found (filename / title field), the offending string, and the suggested fix: replace `—` with ` - ` (space-hyphen-space).
 
+### Step 6c - Check for stale pages
+
+For each in-scope page, check for the following conditions:
+
+**Missing date fields (error):** If a page has neither `date:` nor `updated:` in its frontmatter, flag as a **missing date fields error**. Both fields absent suggests something went wrong at creation - the page was not written by a skill or the frontmatter is malformed.
+
+**Stale (soft warning):** If a page has an `updated:` field and it is more than 90 days before today, flag as a **stale page**. Exempt from this check:
+- `status: artefact`, `status: snapshot`, `status: archived` - frozen by definition
+- `page_type: reference` - reference pages have mostly static content and infrequent updates are expected
+
+Pages without an `updated:` field (but with `date:`) are silently skipped - absence of `updated:` is not an error.
+
+Flag each stale page with: path, `updated:` date, days since last touch.
+Flag each missing-date-fields error with: path, which fields are absent.
+
 ### Step 7 - Check for orphaned binary assets
 
 For each non-markdown file outside blacklisted paths, raw\, archive\, and ingested\: search all in-scope pages for any reference to this filename. If none found: flag as an **orphaned binary asset**. A file contextually placed alongside related content (e.g. a PDF in a domain subfolder referenced by domain pages) is not an orphan; only flag files with no wiki references anywhere.
@@ -128,6 +143,8 @@ date: YYYY-MM-DD
 - Stale index entries: N
 - Missing connections (candidates): N
 - Em-dash violations (titles/filenames): N
+- Missing date fields (errors): N
+- Stale pages (updated: > 90 days): N
 - Orphaned binary assets: N
 - Orphaned sources in ingested/: N (+ N notes in assets/)
 - Conceptual flags: N
@@ -150,6 +167,12 @@ date: YYYY-MM-DD
 ## Em-dash Violations
 [file path, where found (filename / title field), suggested fix: replace — with ' - ']
 
+## Missing Date Fields
+[file path, which of date: / updated: are absent; likely indicates malformed frontmatter or non-skill creation]
+
+## Stale Pages
+[file path, updated: date, days since last touch; not flagged if status: artefact/snapshot/archived or page_type: reference]
+
 ## Orphaned Binary Assets
 [file path, reason it has no wiki references]
 
@@ -167,7 +190,7 @@ date: YYYY-MM-DD
 
 ```
 ## [YYYY-MM-DD] lint | Full wiki pass
-Summary: N broken links, N orphans, N stale entries, N missing connections, N orphaned assets.
+Summary: N broken links, N orphans, N stale entries, N missing connections, N date-field errors, N stale pages, N orphaned assets.
 Report: archive/lint-YYYY-MM-DD.md
 ```
 
@@ -180,6 +203,8 @@ Report the summary. Do not offer to auto-fix anything. Suggest follow-up:
 - Stale index entries -> remove from index.md or update the path
 - Missing connections -> run wiki-integrate on the flagged page pairs
 - Em-dash violations -> rename the file (replace `—` with ` - `) and update its `title:` field; search for any wikilinks pointing to the old name and update them
+- Missing date fields -> inspect the page; if skill-written, the frontmatter is malformed and should be repaired manually
+- Stale pages -> review and update; or set `status: artefact`, `snapshot`, or `archived` if the page is intentionally frozen
 - Orphaned binary assets -> move to an appropriate location or delete if unwanted
 - Orphaned sources in ingested/ -> re-ingest the source file (drop back into raw/ and run wiki-ingest), or investigate why no wiki page was created
 - Notes in ingested/assets/ -> retry ingestion if new tools or capabilities are available

@@ -3,7 +3,7 @@ name: wiki-integrate
 description: Weave a newly created or significantly updated wiki page into the knowledge graph. Adds it to index.md if missing, finds related pages by topic overlap, and adds backlinks in both directions. Use when you say /wiki-integrate, when a new page has just been created directly in a chat, or when a page has been significantly revised and needs connecting. Lightweight; does not rewrite content, only adds links and index entries. Requires filesystem read/write access.
 ---
 
-<!-- version: 3.7 -->
+<!-- version: 3.8 -->
 
 # Wiki Integrate
 
@@ -103,6 +103,8 @@ For each confirmed pair, add links in both directions:
 - In the candidate page: add `[[Target Page Title]]` where it fits naturally
 
 Write only the new wikilink; do not restructure or rewrite candidate page content. Check each candidate is not blacklisted before writing.
+
+For every page written to (target and each candidate that received a link), also update the `updated:` frontmatter field to today's date. Leave all other frontmatter fields unchanged.
 
 ### Step 7 - Append to log.md
 
