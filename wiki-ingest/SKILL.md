@@ -3,7 +3,7 @@ name: wiki-ingest
 description: Process source files from the raw/ folder into synthesised wiki pages. Run after dropping articles, PDFs, notes, or data files into raw/, or when you say /wiki-ingest. Treats raw/ as a flat queue; scans all files, extracts and synthesises knowledge, creates or updates wiki pages with wikilink backlinks, then moves each source file to the appropriate ingested/ subfolder as an atomic commit; the move is the record of completion. Unreadable files move to ingested/assets/. Updates index.md and logs the operation. Blacklist applies to wiki page creation only, not file moves. Requires filesystem read/write/move access.
 ---
 
-<!-- version: 4.10 -->
+<!-- version: 4.11 -->
 
 # Wiki Ingest
 
@@ -189,10 +189,19 @@ When creating a new page:
   version: 1.0
   date: YYYY-MM-DD
   updated: YYYY-MM-DD
+  status: active
+  description: "~200 char synthesis of what this page covers"
+  source:
+    - "ingested/[subdir]/source-filename.md"
+  reliability: high|medium|low
   changes: "Created by wiki-ingest from [source-filename]"
   ---
   ```
   `date:` is the creation date - set once, never modified on subsequent writes. `updated:` is also set to today on creation; the two fields will be equal for new pages and that is correct.
+  `status:` - write `stub` if the synthesised body is thin (fewer than ~3 substantive sentences); write `active` otherwise. Agent judgment.
+  `description:` - a ~200 char synthesis of what this page covers. Always quoted. Written for LLM bookkeeping, not as a page header.
+  `source:` - a one-element list with the post-move `ingested/[subdir]/filename` path. Only written when the page has an ingested origin; omit on hand-authored pages.
+  `reliability:` - only when `source:` is present. Assess the originating source's nature and authority: primary source or authoritative document = `high`; well-sourced secondary source = `medium`; blog post, opinion, single-source, or unverified = `low`. When in doubt, use `medium` - or ask the user if the source quality is genuinely hard to assess without knowing their intent. Example: *"This source is a secondary summary but cites primary research throughout. I'd assess it as `medium`. Does that match your expectations, or would you prefer I look for the primary source before creating this page?"*
   `changes:` must be a brief description only; never a file path or URL. The ingested/ path lives in the body Sources section (see below).
 - Add a Sources section at the end of the page body:
   ```markdown
@@ -203,10 +212,24 @@ When creating a new page:
 - Write synthesised markdown, not a raw copy of the source
 - Add `[[wikilinks]]` to related pages identified in step 2c
 
+- **`## Pending Review` section** - applies only to pages that establish factual claims (`page_type: knowledge`, `research-note`, `survey`). Skip for domain-home, reference, overview, home, log, index, and config pages - these do not make factual claims that need corroboration.
+
+  - `reliability: high` → no section
+  - `reliability: medium` → add a `## Pending Review` section after `## Sources`:
+
+    > This page was created from a single source. A corroborating source from a different author or publication would be sufficient to retire this section.
+
+  - `reliability: low` → add `## Pending Review` with stronger framing:
+
+    > This page was created from a single non-authoritative source. To raise trust: find a primary source on this topic, or two independent corroborating sources, and re-ingest or enrich this page. Key claims to verify: [list 1-3 specific claims from the synthesis most in need of corroboration].
+
+  When the reliability assessment is genuinely ambiguous - not just uncertain, but dependent on the user's intent for this wiki - ask rather than decide unilaterally. The agent can also offer to search for a corroborating or primary source inline rather than writing a `## Pending Review` and moving on. Example: *"I've drafted this page from a single secondary source. I could write a Pending Review section flagging it for follow-up, or search for a primary source now before finalising the page. Which would you prefer?"*
+
 When updating an existing page (including re-ingestions):
 - Read the full current page first
 - **Treat an update with the same synthesis ambition as a new page.** Do not anchor on what is already there. Ask: *what does a reader of this page not yet know that this source would teach them?* That gap is the synthesis target. If the source is large (>100 lines) and the page has a clear existing structure, check every major section of the source against the current page; missing coverage of a major section is a synthesis gap, not a design decision.
 - Integrate new knowledge naturally; flag contradictions or significant updates in the session summary
+- **Better-source resolution:** when the new source is demonstrably more authoritative or substantially improves coverage over the existing `source:` entry, update `source:` and `reliability:` in frontmatter to reflect the new source. Add the new source to `## Sources`. If a `## Pending Review` section exists and the new source genuinely resolves the trust gap, remove it and note the removal in the session summary. Leave `source:` and `reliability:` unchanged when the new source is additional enrichment rather than a replacement.
 - If the page does not yet have a Sources section, add one using the same format above. If a Sources section already exists, check whether it references a `raw/` path for this source; if so, update it to the correct `ingested/[subdir]/[filename]` path. The Sources section should always reflect the post-move destination, never the raw/ queue.
 - If new content from this source would substantially change the scope or length of the page (rough signal: new content exceeds current content), consider whether the page should be split or a companion page created; offer this to the user as a suggestion, do not act without consent
 - Update the frontmatter `version:`, `changes:`, and `updated:` fields. Leave `date:` unchanged - it is the creation date and must not move on subsequent writes.
@@ -275,6 +298,8 @@ Report: files processed with outcomes and destinations, files moved to assets/ w
 8. **Frontmatter on every new page:** always include title, version, date, changes
 9. **One source can produce multiple pages:** a rich PDF may warrant several wiki pages; each page's `changes:` field should reference the source
 10. **If unsure whether a path is blacklisted, stop and ask:** never guess
+11. **Source trust is an agent judgment:** assess `reliability:` based on the originating source's nature and authority. When in doubt, use `medium` - or ask the user if the source quality cannot be assessed without knowing their intent. The agent can also offer to search for a better source inline rather than deferring to a `## Pending Review` section
+12. **`## Pending Review` stays until resolved:** never remove this section unless a new ingest genuinely raises the page's reliability. It is a quality signal, not a cleanup item
 
 ---
 

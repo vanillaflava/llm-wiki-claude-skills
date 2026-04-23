@@ -3,7 +3,7 @@ name: wiki-crystallize
 description: Distil a long chat thread, accumulated research session, or working document into a structured wiki page capturing the current state of knowledge on the topic. Run when you say /wiki-crystallize, when a chat is getting heavy, or before closing a long-running thread. The chat is the scaffolding; the wiki page is the artefact. Requires filesystem read/write access.
 ---
 
-<!-- version: 3.8 -->
+<!-- version: 3.9 -->
 
 # Wiki Crystallize
 
@@ -115,6 +115,7 @@ Read the full current content of the target page. Integrate the crystallized kno
 - Add new decisions, findings, or open questions to the appropriate sections
 - Update any sections that are now out of date
 - Do not duplicate content already present; synthesise and merge
+- **`description:` rewrite** - rewrite the `description:` field if the page's section structure has changed, the scope has shifted, or substantial new content was added. For incremental additions to existing sections, leave `description:` unchanged. Agent judgment.
 - Update the frontmatter `version:`, `changes:`, and `updated:` fields. Leave `date:` unchanged - it is the creation date. Increment `crystallize_count:`: read the current value and add 1; if the field is absent, write 1.
 
 ### Step 4b - Write a new page
@@ -126,6 +127,7 @@ version: 1.0
 date: YYYY-MM-DD
 updated: YYYY-MM-DD
 crystallize_count: 1
+description: "~200 char synthesis of what this page covers"
 changes: "Crystallized from [source chat / session description]"
 ---
 
