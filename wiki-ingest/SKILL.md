@@ -3,7 +3,7 @@ name: wiki-ingest
 description: Process source files from the raw/ folder into synthesised wiki pages. Run after dropping articles, PDFs, notes, or data files into raw/, or when you say /wiki-ingest. Treats raw/ as a flat queue; scans all files, extracts and synthesises knowledge, creates or updates wiki pages with wikilink backlinks, then moves each source file to the appropriate ingested/ subfolder as an atomic commit; the move is the record of completion. Unreadable files move to ingested/assets/. Updates index.md and logs the operation. Blacklist applies to wiki page creation only, not file moves. Requires filesystem read/write/move access.
 ---
 
-<!-- version: 4.5 -->
+<!-- version: 4.6 -->
 
 # Wiki Ingest
 
@@ -27,11 +27,19 @@ Processes source files from the `raw/` queue into synthesised, interlinked wiki 
 
    - **Present and parses cleanly** → read the schema (`mandatory_fields`, `conditional_fields`, `enums`) and proceed to the Workflow.
    
-   - **Missing** → stop. Recommend `/wiki-config` as the easiest path; it deploys both files and walks through setup in a minute. If wiki-config isn't available or the user wants to press on without it, offer to deploy `wiki-schema.md` from `references/wiki-schema.md`, then remind them to run `/wiki-config` later for fine-tuning (especially `blacklist` placeholders in `wiki-config.md`).
+   - **Missing** → STOP. Do not proceed. Do not deploy. Response depends on whether `wiki-config` is in `<available_skills>` (from step 3):
+     
+     - **wiki-config available:** Output exactly this pattern - *"Your wiki is missing `wiki-schema.md`. Run `/wiki-config` to deploy it and complete setup. I'll wait for that to be done before proceeding."* End of turn. Do not offer bundled deployment; do not present alternatives. wiki-config's guided flow is the correct path when wiki-config is available.
+     
+     - **wiki-config not available:** Offer bundled fallback - *"Your wiki is missing `wiki-schema.md` and the wiki-config skill is not installed. I can deploy a default from my bundled reference, but I'd recommend installing wiki-config for the guided setup. Deploy bundled default?"* Wait for explicit confirmation. On OK, deploy from `references/wiki-schema.md`.
    
-   - **Malformed** → stop. Recommend `/wiki-config` - it has a guided repair flow that is safer than a blind overwrite. If wiki-config isn't available, point to `references/setup-help.md` for manual repair. If the user insists on a reset, warn that it overwrites any customizations they've made, then deploy the default on their explicit OK.
+   - **Malformed** → STOP. Same structure:
+     
+     - **wiki-config available:** *"Your `wiki-schema.md` is malformed. Run `/wiki-config` - it has a guided repair flow that preserves any customizations you've made. I'll wait."* End of turn. Do not attempt repair or bundled overwrite.
+     
+     - **wiki-config not available:** Point to `references/setup-help.md` for manual repair guidance. If the user explicitly instructs a reset (not as an automatic fallback), warn that it overwrites any customizations, then deploy the default on explicit OK.
 
-   The same logic applies if `wiki-config.md` itself was found malformed in step 4: recommend `/wiki-config` for guided repair; warn before overwriting.
+   The same two-branch structure applies if `wiki-config.md` itself was found malformed in step 4: wiki-config available → stop and recommend `/wiki-config`, end of turn; unavailable → guided manual repair via setup-help.md.
 
 6. **Config not found at all**: Ask the user for their wiki root path, search there (bounded, max 5 levels). If still nothing, they don't have a wiki yet - follow the "Missing" branch above (recommend `/wiki-config`; offer bundled deployment if unavailable).
 
