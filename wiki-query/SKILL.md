@@ -3,7 +3,7 @@ name: wiki-query
 description: Answer a question using the compiled wiki knowledge base. Reads index.md to identify relevant pages, synthesises an answer with [[wikilink]] citations, and optionally files valuable answers as new wiki pages. Use when you say /wiki-query or when the user wants to draw on accumulated wiki knowledge rather than general model knowledge. Requires filesystem read access.
 ---
 
-<!-- version: 3.6 -->
+<!-- version: 3.7 -->
 
 # Wiki Query
 

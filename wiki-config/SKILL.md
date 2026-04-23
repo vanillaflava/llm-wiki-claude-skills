@@ -3,7 +3,7 @@ name: wiki-config
 description: Set up, validate, and reconfigure wiki-config.md for the llm-wiki skill suite. Use when the user says /wiki-config, asks to "set up my wiki", "configure wiki", "initialize wiki config", mentions "page structure problems", "header errors", "schema issues", or when any wiki skill reports a missing or invalid config or schema file. Owns the interactive configuration flow and schema management for the wiki system.
 ---
 
-<!-- version: 1.5 -->
+<!-- version: 1.6 -->
 
 # Wiki Config
 

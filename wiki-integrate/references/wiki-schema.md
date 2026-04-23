@@ -72,7 +72,46 @@ The bundled default (what `/wiki-config` restores) is the minimum coherent set a
 
 ## Field semantics
 
-This file defines **structure**. For **meaning** - when and why each field is written, what counts as a valid value, how skills interpret each one - see `LLM Wiki Skills - Conventions.md` in your vault (or the conventions reference bundled with each skill).
+### Mandatory fields
+
+Every page a skill writes must include all five:
+
+| Field | Rule |
+|---|---|
+| `title:` | Must match the H1 heading exactly. Quote if the value contains a colon. |
+| `version:` | Start at 1.0. Increment minor (1.1) for additions, major (2.0) for structural rewrites. |
+| `date:` | ISO 8601 date of this version. Date only - no timestamp. |
+| `changes:` | One sentence. Never a file path. Never an em-dash. Always quoted. |
+| `page_type:` | Controls how skills handle the page. Use values from the `page_type` enum above. |
+
+### Conditional fields
+
+Written by skills when context applies. Not required on every page.
+
+| Field | Written by | When | Key rules |
+|---|---|---|---|
+| `updated:` | Any wiki skill on touch | Every skill write | YYYY-MM-DD; captures last skill contact date |
+| `status:` | wiki-ingest on create; any skill on state change | Every page | Default `active`; write `stub` if body is minimal at create; skills never downgrade existing value |
+| `description:` | wiki-ingest, wiki-crystallize | Every page | ~200 chars, quoted; LLM bookkeeping - not human territory |
+| `crystallize_count:` | wiki-crystallize only | Every crystallize write | Integer, starts at 1; counts deliberate crystallize events only - not general edits |
+| `source:` | wiki-ingest on create | When page has an ingested origin | Always a list, even for single origin: `["ingested/clippings/foo.md"]` |
+| `reliability:` | wiki-ingest on create | Only when `source:` is present | Use minimum value when multiple sources contributed; omit entirely when no source |
+
+### Write discipline
+
+**Frontmatter is skill territory.** Skills overwrite known fields without asking. Humans who edit these values should expect them to be overwritten on the next skill touch.
+
+**Body is human territory.** Skills append and add sections; they never delete human-written prose. Unrecognised frontmatter fields are preserved unchanged.
+
+### Key anti-patterns
+
+| Anti-pattern | Fix |
+|---|---|
+| `changes: key: value` (colon-space unquoted) | Quote the `changes:` value |
+| Em-dash (`—`) in any field value or title | Use ` - ` (space-hyphen-space) |
+| File path in `changes:` | Put paths in body `## Sources` section; `changes:` is a short description only |
+
+For full conventions, page type guidance, and tips, see `[[Wiki Help]]` in your vault (deployed by `/wiki-config` on first run).
 
 ## Recovery
 
