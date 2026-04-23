@@ -3,7 +3,7 @@ name: wiki-crystallize
 description: Distil a long chat thread, accumulated research session, or working document into a structured wiki page capturing the current state of knowledge on the topic. Run when you say /wiki-crystallize, when a chat is getting heavy, or before closing a long-running thread. The chat is the scaffolding; the wiki page is the artefact. Requires filesystem read/write access.
 ---
 
-<!-- version: 3.5 -->
+<!-- version: 3.6 -->
 
 # Wiki Crystallize
 
@@ -17,7 +17,7 @@ Distils ephemeral conversation into durable, structured wiki knowledge.
 
 1. **Identify scope**: Determine filesystem scope root (allowedDirectories for MCP, CWD for Code, equivalent for other surfaces).
 
-2. **Scope check**: If scope is bare drive root (`C:\`, `D:\`, `/`), OS root, or user home (`C:\Users\X`, `/home/X`, `/Users/X`) → skip to step 6 (do not search for privacy).
+2. **Scope check - MANDATORY STOP**: If scope is bare drive root (`C:\`, `D:\`, `/`), OS root, or user home (`C:\Users\X`, `/home/X`, `/Users/X`) → **stop immediately. Do not search. Do not attempt to locate wiki-config.md.** Go directly to step 6.
 
 3. **Scan `<available_skills>` for `wiki-config`.** Note whether it's available - this shapes the recommendations below. The bundled `references/setup-help.md` is also available; read it if the user needs orientation or if you get stuck.
 

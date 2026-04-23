@@ -3,7 +3,7 @@ name: wiki-query
 description: Answer a question using the compiled wiki knowledge base. Reads index.md to identify relevant pages, synthesises an answer with [[wikilink]] citations, and optionally files valuable answers as new wiki pages. Use when you say /wiki-query or when the user wants to draw on accumulated wiki knowledge rather than general model knowledge. Requires filesystem read access.
 ---
 
-<!-- version: 3.5 -->
+<!-- version: 3.6 -->
 
 # Wiki Query
 
@@ -17,7 +17,7 @@ Answers questions by reading and synthesising knowledge from the compiled wiki.
 
 1. **Identify scope**: Determine filesystem scope root (allowedDirectories for MCP, CWD for Code, equivalent for other surfaces).
 
-2. **Scope check**: If scope is bare drive root (`C:\`, `D:\`, `/`), OS root, or user home (`C:\Users\X`, `/home/X`, `/Users/X`) → skip to step 6 (do not search for privacy).
+2. **Scope check - MANDATORY STOP**: If scope is bare drive root (`C:\`, `D:\`, `/`), OS root, or user home (`C:\Users\X`, `/home/X`, `/Users/X`) → **stop immediately. Do not search. Do not attempt to locate wiki-config.md.** Go directly to step 6.
 
 3. **Scan `<available_skills>` for `wiki-config`.** Note whether it's available - this shapes the recommendations below. The bundled `references/setup-help.md` is also available; read it if the user needs orientation or if you get stuck.
 
