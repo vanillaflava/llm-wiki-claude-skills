@@ -3,7 +3,7 @@ name: wiki-lint
 description: Health-check the wiki. Scans all pages for broken wikilinks, orphaned pages, stale index entries, missing connections between related pages, em-dash violations in page titles and filenames, orphaned binary assets, and orphaned sources in ingested/. Produces a dated lint report in archive/. Use when you say /wiki-lint or periodically to maintain knowledge graph health. Never auto-fixes anything; report only. Requires filesystem read access and write access to archive/.
 ---
 
-<!-- version: 3.9 -->
+<!-- version: 3.10 -->
 
 # Wiki Lint
 
@@ -110,6 +110,21 @@ Pages without an `updated:` field (but with `date:`) are silently skipped - abse
 Flag each stale page with: path, `updated:` date, days since last touch.
 Flag each missing-date-fields error with: path, which fields are absent.
 
+### Step 6d - Schema compliance check (provenance fields)
+
+For each in-scope page, validate the four provenance fields (`status:`, `description:`, `source:`, `reliability:`). Two classes of finding:
+
+**Errors (hard flag):**
+
+- **`source:` without `reliability:`** - `source:` is present but `reliability:` is absent. These fields are coupled; one without the other is an internal inconsistency. Flag as a **schema error** with: path, field pair affected.
+- **Invalid `status:` value** - `status:` is present but its value is not one of the valid enum values (`active`, `stub`, `artefact`, `archived`, `snapshot`). Flag as a **schema error** with: path, field, invalid value found, valid values.
+- **Invalid `reliability:` value** - `reliability:` is present but its value is not one of (`high`, `medium`, `low`). Flag as a **schema error** with: path, field, invalid value found, valid values.
+
+**Soft warnings (informational):**
+
+- **Skill-touched page missing `status:` or `description:`** - page has `updated:` (meaning a skill has written to it post-3b) and `page_type:` is `knowledge`, `research-note`, or `survey`, but `status:` or `description:` is absent. Old pages without `updated:` are silently skipped - they predate 3b and will pick up fields on next touch. Flag as a **missing provenance field** with: path, which field(s) absent.
+- **`source:` present but no `## Sources` section** - `source:` in frontmatter implies an ingested origin; the body should have a `## Sources` section for enrichment tracking. Absence is not a hard error but is worth flagging. Flag as a **missing Sources section** with: path.
+
 ### Step 7 - Check for orphaned binary assets
 
 For each non-markdown file outside blacklisted paths, raw\, archive\, and ingested\: search all in-scope pages for any reference to this filename. If none found: flag as an **orphaned binary asset**. A file contextually placed alongside related content (e.g. a PDF in a domain subfolder referenced by domain pages) is not an orphan; only flag files with no wiki references anywhere.
@@ -145,6 +160,9 @@ date: YYYY-MM-DD
 - Em-dash violations (titles/filenames): N
 - Missing date fields (errors): N
 - Stale pages (updated: > 90 days): N
+- Schema errors (invalid/missing provenance fields): N
+- Missing provenance fields (skill-touched pages): N
+- Missing Sources sections: N
 - Orphaned binary assets: N
 - Orphaned sources in ingested/: N (+ N notes in assets/)
 - Conceptual flags: N
@@ -173,6 +191,15 @@ date: YYYY-MM-DD
 ## Stale Pages
 [file path, updated: date, days since last touch; not flagged if status: artefact/snapshot/archived or page_type: reference]
 
+## Schema Errors
+[file path, field(s) affected, nature of error (invalid enum value / source: without reliability:)]
+
+## Missing Provenance Fields
+[file path, which of status: / description: are absent; page has updated: and is a fact-establishing page_type]
+
+## Missing Sources Sections
+[file path, has source: in frontmatter but no ## Sources section in body]
+
 ## Orphaned Binary Assets
 [file path, reason it has no wiki references]
 
@@ -190,7 +217,7 @@ date: YYYY-MM-DD
 
 ```
 ## [YYYY-MM-DD] lint | Full wiki pass
-Summary: N broken links, N orphans, N stale entries, N missing connections, N date-field errors, N stale pages, N orphaned assets.
+Summary: N broken links, N orphans, N stale entries, N missing connections, N date-field errors, N stale pages, N schema errors, N missing provenance fields, N orphaned assets.
 Report: archive/lint-YYYY-MM-DD.md
 ```
 
@@ -205,6 +232,9 @@ Report the summary. Do not offer to auto-fix anything. Suggest follow-up:
 - Em-dash violations -> rename the file (replace `—` with ` - `) and update its `title:` field; search for any wikilinks pointing to the old name and update them
 - Missing date fields -> inspect the page; if skill-written, the frontmatter is malformed and should be repaired manually
 - Stale pages -> review and update; or set `status: artefact`, `snapshot`, or `archived` if the page is intentionally frozen
+- Schema errors -> repair frontmatter manually: add missing `reliability:` when `source:` is present, or correct invalid enum values for `status:` or `reliability:`
+- Missing provenance fields -> re-run wiki-ingest or wiki-crystallize on the page to pick up `status:` and `description:`; or add manually following the schema
+- Missing Sources sections -> add a `## Sources` section to the page body referencing the path in `source:`
 - Orphaned binary assets -> move to an appropriate location or delete if unwanted
 - Orphaned sources in ingested/ -> re-ingest the source file (drop back into raw/ and run wiki-ingest), or investigate why no wiki page was created
 - Notes in ingested/assets/ -> retry ingestion if new tools or capabilities are available
