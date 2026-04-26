@@ -1,9 +1,9 @@
 ---
 name: wiki-config
-description: Set up, validate, and reconfigure wiki-config.md for the llm-wiki skill suite. Use when the user says /wiki-config, asks to "set up my wiki", "configure wiki", "initialize wiki config", mentions "page structure problems", "header errors", "schema issues", or when any wiki skill reports a missing or invalid config or schema file. Owns the interactive configuration flow and schema management for the wiki system.
+description: Set up, validate, and reconfigure the llm-wiki skill suite. Use when the user says /wiki-config, asks to "set up my wiki", "configure wiki", "initialize wiki config", mentions "page structure problems", "header errors", "schema issues", "missing templates", "page templates", or when any wiki skill reports a missing or invalid config, schema, or templates folder. Owns the interactive configuration flow, schema management, and template management for the wiki system.
 ---
 
-<!-- version: 1.6 -->
+<!-- version: 1.7 -->
 
 # Wiki Config
 
@@ -43,6 +43,8 @@ Present this table with actual status for each skill:
 ```
 
 If any are missing: "Install from https://github.com/vanillaflava/llm-wiki-claude-skills for the full ecosystem."
+
+The bundled `references/setup-help.md` is available throughout this session. Read it if you need more orientation context, if a user asks detailed questions about the wiki system, or if you get stuck.
 
 #### Present the welcome message
 
@@ -94,11 +96,60 @@ What's the path?"
 
 **Branch based on findings:**
 
-→ **Config found** - Check for `wiki-schema.md` alongside it in the same directory:
-  - **Both present**: Read and show the config. "You're already set up. Want to validate the config, view/edit the schema, or change something?" → Step 3 (Validate), Step 4 (Reconfigure), or Step 5 (Schema Management)
-  - **Schema missing or malformed**: "Your `wiki-config.md` exists but `wiki-schema.md` is missing or unreadable. I can deploy the default schema now." → On user confirmation, copy `assets/wiki-schema.md` to the wiki root, then offer the main menu
-
 → **Config not found** - "You don't have a wiki yet. I'll walk you through setup." → Step 2 (Init)
+
+→ **Config found** - Read it, then run a full environment check in the same directory. Check each of the following:
+
+1. `wiki-schema.md` - present and parses cleanly / missing / malformed
+2. `templates/` folder - present / missing
+3. Template file completeness - which of the 12 expected files are present (`knowledge.md`, `reference.md`, `survey.md`, `domain-home.md`, `overview.md`, `log.md`, `index.md`, `longform.md`, `profile.md`, `established-patterns.md`, `note.md`, `config.md`)
+4. `templates_folder:` field in `wiki-config.md` - present / absent
+
+Present a compact, friendly summary - one line per component. For example:
+
+> **Your wiki environment**
+>
+> - wiki-config.md: found
+> - wiki-schema.md: found
+> - templates/: present (9 of 12 files)
+> - templates_folder field: absent from config
+>
+> Two items need attention. I can repair both in one step, or you can choose individually.
+
+**If everything is healthy:** offer the main menu directly.
+
+**If any items are missing or broken:** show the summary above, then offer:
+- "Repair all" - deploys all missing items in one pass; one confirmation before starting
+- Individual choice - user picks which items to address
+
+**Repair actions per component:**
+- `wiki-schema.md` missing → deploy from `assets/wiki-schema.md` (non-destructive, no confirmation needed)
+- `wiki-schema.md` malformed → warn, offer reset to bundled default; confirm before overwriting
+- `templates/` folder missing → introduce templates with the blockquoted message below, then offer to create folder and deploy all 12 files + README from `assets/templates/`
+- Individual template files missing → deploy only the missing files from `assets/templates/`; never overwrite files already present
+- `templates_folder:` absent from config → write `templates_folder: templates/` to `wiki-config.md`; only do this when `templates/` folder is confirmed present
+
+When `templates/` is missing or incomplete and the user hasn't encountered this before, present:
+
+> **Page Templates**
+>
+> Templates give every wiki page a consistent, structured starting point. When a skill creates a new page, it reads the matching template from your `templates/` folder and uses it as a scaffold - substituting placeholders like `{{TITLE}}` and `{{DATE}}` with real values.
+>
+> Your templates are yours to edit. Changes take effect immediately for any new pages; existing pages are never modified. If a template file is missing, the skill falls back to a minimal hardcoded structure.
+>
+> The default set covers all 12 page types: knowledge, reference, survey, domain-home, overview, log, index, longform, profile, established-patterns, note, and config.
+
+After presenting, ask: "Deploy the default template set to `<wiki_root>/templates/`?"
+
+After any repair: show the updated status and offer the main menu.
+
+**Main menu (all components healthy):**
+
+Offer:
+- Validate config (Step 3)
+- Edit config settings (Step 4)
+- Manage schema (Step 5)
+- Manage templates (Step 6)
 
 ### 2 - Init
 
@@ -119,23 +170,25 @@ If the path fails a check, explain which and ask again.
 
 Deploy the scaffolding:
 1. Copy `assets/wiki-config-template.md` to `<wiki_root>/wiki-config.md`
-2. Copy `assets/wiki-schema.md` to `<wiki_root>/wiki-schema.md`
-3. If `<wiki_root>/index.md` missing, create it with header:
+2. Write `templates_folder: templates/` into `<wiki_root>/wiki-config.md` if not already present in the template
+3. Copy `assets/wiki-schema.md` to `<wiki_root>/wiki-schema.md`
+4. If `<wiki_root>/index.md` missing, create it with header:
    ```
    # Wiki Index
    *Catalogue of all wiki pages. Maintained by wiki-ingest and wiki-integrate.*
    ```
-4. If `<wiki_root>/log.md` missing, create it with header:
+5. If `<wiki_root>/log.md` missing, create it with header:
    ```
    # Wiki Operation Log
    *Append-only. New entries go at the top.*
    ```
-5. Create `<wiki_root>/raw/` (the ingest queue)
-6. Create `<wiki_root>/ingested/` and each subdir in `ingested_subdirs`, plus `<wiki_root>/ingested/assets/` (always)
-7. Create `<wiki_root>/templates/` (empty; reserved for the page-templates system)
-8. Append an init entry to log.md
+6. Create `<wiki_root>/raw/` (the ingest queue)
+7. Create `<wiki_root>/ingested/` and each subdir in `ingested_subdirs`, plus `<wiki_root>/ingested/assets/` (always)
+8. Create `<wiki_root>/templates/` and copy all 12 template files from `assets/templates/` into it
+9. Copy `assets/templates/README.md` to `<wiki_root>/templates/README.md`
+10. Append an init entry to log.md
 
-Report to the user: list of what was created (explicitly mentioning both `wiki-config.md` and `wiki-schema.md`), suggest next steps (drop files in raw/, run /wiki-ingest).
+Report to the user: list of what was created, explicitly naming `wiki-config.md`, `wiki-schema.md`, and the templates folder (N template files). Suggest next steps (drop files in raw/, run /wiki-ingest).
 
 ### 3 - Validate
 
@@ -200,6 +253,47 @@ On user request, copy `assets/wiki-schema.md` over `<wiki_root>/wiki-schema.md`.
 
 Never silently overwrite a custom schema. Reset is always an explicit, confirmed operation.
 
+### 6 - Template Management
+
+Template management lets the user view, repair, reset, or inspect the page templates in `<wiki_root>/templates/`.
+
+Present the orientation on first entry to this flow:
+
+> **Page Templates**
+>
+> Templates give every wiki page a consistent, structured starting point. When a skill creates a new page, it reads the matching template from your `templates/` folder and uses it as a scaffold - substituting placeholders like `{{TITLE}}` and `{{DATE}}` with real values.
+>
+> Your templates are yours to edit. Changes take effect immediately for any new pages; existing pages are never modified. If a template file is missing, the skill falls back to a minimal hardcoded structure.
+>
+> The default set covers all 12 page types: knowledge, reference, survey, domain-home, overview, log, index, longform, profile, established-patterns, note, and config.
+
+**Assess current state:**
+
+List files in `<wiki_root>/templates/`. Identify which of the 12 expected files are present and which are missing.
+
+Present the status:
+
+> **Templates folder: [X of 12 default templates present]**
+>
+> Present: knowledge.md, survey.md, ... [list]
+> Missing: reference.md, ... [list, if any]
+
+**Offer actions:**
+
+- **View a template** - read and display the content of any named template file; note that the user can edit it directly in their notes app
+- **Deploy missing defaults** - copy any missing files from `assets/templates/` to `<wiki_root>/templates/`; never overwrite files already present
+- **Reset a specific template** - overwrite a named template with the bundled default; warn before proceeding
+- **Reset all templates** - overwrite all 12 with bundled defaults; warn before proceeding
+- **View README** - display `<wiki_root>/templates/README.md`
+
+**Reset safeguard** - show before any reset:
+
+> *"Resetting a template replaces your edits with the bundled default. Your existing wiki pages are not affected - only future pages will use the new structure. This cannot be undone from within this skill."*
+
+Confirm per file on individual reset; confirm once (listing all 12 files) before a full reset.
+
+After any action, offer to continue with another template action or return to the main menu.
+
 ---
 
 ## Key Rules
@@ -208,7 +302,7 @@ Never silently overwrite a custom schema. Reset is always an explicit, confirmed
 2. **Never overwrite a live config without explicit confirmation.** Reconfiguration is a per-field dialogue.
 3. **Wiki root is the directory containing wiki-config.md.** No wiki_root field in the config. Moving the wiki means moving this file.
 4. **Never deploy to a bare drive root, OS root, or user home.** These are almost always user error.
-5. **The bundled template and schema are the single source of truth.** This skill bundles `assets/wiki-config-template.md` and `assets/wiki-schema.md` (both deployed during init). The five operational skills bundle identical read-only copies at `references/wiki-config-template.md` and `references/wiki-schema.md` (pulled into context on every invocation - schema for page writes, config for manual setup assistance). When either file changes here, all five operational copies must update in lockstep. `references/setup-help.md` should also be kept in sync across the operational skills.
+5. **The bundled assets are the single source of truth.** This skill bundles `assets/wiki-config-template.md`, `assets/wiki-schema.md`, and `assets/templates/` (12 template files + README). All are deployed during init. The five operational skills bundle identical read-only copies of `wiki-config-template.md` and `wiki-schema.md` in their `references/` folders. When any shared file changes here, operational copies must update in lockstep. `references/setup-help.md` should also be kept in sync across the operational skills.
 6. **wiki-config is the recommended setup, edit, and repair path.** Only wiki-config has the guided schema editor and repair flow. Operational skills can deploy bundled defaults from their `references/` folder as a fallback when wiki-config isn't available or the user prefers to press on, but must recommend `/wiki-config` first when it's available. Never silently overwrite a malformed schema - that case always needs an explicit user decision with an overwrite warning.
 
 ---
@@ -218,4 +312,4 @@ Never silently overwrite a custom schema. Reset is always an explicit, confirmed
 - Does not perform any wiki operation (ingest, lint, integrate, crystallize, query). Those are the five operational skills.
 - Does not manage TaskNotes config, plugin settings, or any non-wiki configuration.
 - Does not reach outside the wiki root or modify the filesystem tool's scope.
-- Does not handle page templates, tag taxonomy, or conventions (templates are reserved for a future batch).
+- Does not edit template content directly - it deploys, repairs, and resets templates; the user edits them in their notes app.

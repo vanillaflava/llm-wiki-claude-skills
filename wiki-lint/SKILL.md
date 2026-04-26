@@ -3,7 +3,7 @@ name: wiki-lint
 description: Health-check the wiki. Scans all pages for broken wikilinks, orphaned pages, stale index entries, missing connections between related pages, em-dash violations in page titles and filenames, orphaned binary assets, and orphaned sources in ingested/. Produces a dated lint report in archive/. Use when you say /wiki-lint or periodically to maintain knowledge graph health. Never auto-fixes anything; report only. Requires filesystem read access and write access to archive/.
 ---
 
-<!-- version: 3.10 -->
+<!-- version: 3.11 -->
 
 # Wiki Lint
 
@@ -119,11 +119,13 @@ For each in-scope page, validate the four provenance fields (`status:`, `descrip
 - **`source:` without `reliability:`** - `source:` is present but `reliability:` is absent. These fields are coupled; one without the other is an internal inconsistency. Flag as a **schema error** with: path, field pair affected.
 - **Invalid `status:` value** - `status:` is present but its value is not one of the valid enum values (`active`, `stub`, `artefact`, `archived`, `snapshot`). Flag as a **schema error** with: path, field, invalid value found, valid values.
 - **Invalid `reliability:` value** - `reliability:` is present but its value is not one of (`high`, `medium`, `low`). Flag as a **schema error** with: path, field, invalid value found, valid values.
+- **Invalid `page_type:` value** - `page_type:` is present but its value is not in the valid enum list from wiki-schema.md. Flag as a **schema error** with: path, field, invalid value found, and the valid values from the schema.
 
 **Soft warnings (informational):**
 
 - **Skill-touched page missing `status:` or `description:`** - page has `updated:` (meaning a skill has written to it post-3b) and `page_type:` is `knowledge`, `research-note`, or `survey`, but `status:` or `description:` is absent. Old pages without `updated:` are silently skipped - they predate 3b and will pick up fields on next touch. Flag as a **missing provenance field** with: path, which field(s) absent.
 - **`source:` present but no `## Sources` section** - `source:` in frontmatter implies an ingested origin; the body should have a `## Sources` section for enrichment tracking. Absence is not a hard error but is worth flagging. Flag as a **missing Sources section** with: path.
+- **Skill-touched page missing `page_type:`** - page has `updated:` (meaning a skill has written to it) but `page_type:` is absent. Pages without `updated:` are silently skipped - they predate the feature and will pick up the field on next touch. Flag as a **missing page_type** with: path.
 
 ### Step 7 - Check for orphaned binary assets
 
@@ -160,8 +162,9 @@ date: YYYY-MM-DD
 - Em-dash violations (titles/filenames): N
 - Missing date fields (errors): N
 - Stale pages (updated: > 90 days): N
-- Schema errors (invalid/missing provenance fields): N
+- Schema errors (invalid enum values, missing field pairs): N
 - Missing provenance fields (skill-touched pages): N
+- Missing page_type: (skill-touched pages): N
 - Missing Sources sections: N
 - Orphaned binary assets: N
 - Orphaned sources in ingested/: N (+ N notes in assets/)
@@ -192,10 +195,13 @@ date: YYYY-MM-DD
 [file path, updated: date, days since last touch; not flagged if status: artefact/snapshot/archived or page_type: reference]
 
 ## Schema Errors
-[file path, field(s) affected, nature of error (invalid enum value / source: without reliability:)]
+[file path, field(s) affected, nature of error (invalid enum value / source: without reliability: / invalid page_type: value)]
 
 ## Missing Provenance Fields
 [file path, which of status: / description: are absent; page has updated: and is a fact-establishing page_type]
+
+## Missing page_type:
+[file path, page has updated: but page_type: is absent; add page_type: using values from wiki-schema.md, or run wiki-integrate to infer and confirm]
 
 ## Missing Sources Sections
 [file path, has source: in frontmatter but no ## Sources section in body]
@@ -213,11 +219,13 @@ date: YYYY-MM-DD
 [page, nature of potential issue]
 ```
 
-### Step 9 - Append to log.md
+### Step 9 - Prepend to log.md
+
+Add the new entry at the top of log.md, below the header line, above all existing entries.
 
 ```
 ## [YYYY-MM-DD] lint | Full wiki pass
-Summary: N broken links, N orphans, N stale entries, N missing connections, N date-field errors, N stale pages, N schema errors, N missing provenance fields, N orphaned assets.
+Summary: N broken links, N orphans, N stale entries, N missing connections, N date-field errors, N stale pages, N schema errors, N missing provenance/page_type fields, N orphaned assets.
 Report: archive/lint-YYYY-MM-DD.md
 ```
 
@@ -232,8 +240,9 @@ Report the summary. Do not offer to auto-fix anything. Suggest follow-up:
 - Em-dash violations -> rename the file (replace `—` with ` - `) and update its `title:` field; search for any wikilinks pointing to the old name and update them
 - Missing date fields -> inspect the page; if skill-written, the frontmatter is malformed and should be repaired manually
 - Stale pages -> review and update; or set `status: artefact`, `snapshot`, or `archived` if the page is intentionally frozen
-- Schema errors -> repair frontmatter manually: add missing `reliability:` when `source:` is present, or correct invalid enum values for `status:` or `reliability:`
+- Schema errors -> repair frontmatter manually: add missing `reliability:` when `source:` is present, correct invalid enum values for `status:`, `reliability:`, or `page_type:`
 - Missing provenance fields -> re-run wiki-ingest or wiki-crystallize on the page to pick up `status:` and `description:`; or add manually following the schema
+- Missing page_type: -> add `page_type:` to the page frontmatter using values from the enum in wiki-schema.md; or run wiki-integrate which will infer and confirm the type
 - Missing Sources sections -> add a `## Sources` section to the page body referencing the path in `source:`
 - Orphaned binary assets -> move to an appropriate location or delete if unwanted
 - Orphaned sources in ingested/ -> re-ingest the source file (drop back into raw/ and run wiki-ingest), or investigate why no wiki page was created

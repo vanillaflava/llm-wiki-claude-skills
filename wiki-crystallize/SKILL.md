@@ -3,7 +3,7 @@ name: wiki-crystallize
 description: Distil a long chat thread, accumulated research session, or working document into a structured wiki page capturing the current state of knowledge on the topic. Run when you say /wiki-crystallize, when a chat is getting heavy, or before closing a long-running thread. The chat is the scaffolding; the wiki page is the artefact. Requires filesystem read/write access.
 ---
 
-<!-- version: 3.9 -->
+<!-- version: 3.12 -->
 
 # Wiki Crystallize
 
@@ -118,7 +118,17 @@ Read the full current content of the target page. Integrate the crystallized kno
 - **`description:` rewrite** - rewrite the `description:` field if the page's section structure has changed, the scope has shifted, or substantial new content was added. For incremental additions to existing sections, leave `description:` unchanged. Agent judgment.
 - Update the frontmatter `version:`, `changes:`, and `updated:` fields. Leave `date:` unchanged - it is the creation date. Increment `crystallize_count:`: read the current value and add 1; if the field is absent, write 1.
 
+- **Page_type check:** Confirm `page_type` is present in the page's frontmatter and still accurate. If missing, infer from the page's content and structure, then confirm with the user before writing it. If present but the page appears to have outgrown its current type (e.g. a `knowledge` page now functions as a domain hub, or a `knowledge` page has grown into a comparative survey), offer a promotion: *"This page is typed as `<type>` but reads more like a `<better-type>` now. Want me to update `page_type` while I'm here?"* Never auto-promote; always confirm.
+
 ### Step 4b - Write a new page
+
+**Determine `page_type` and load template:**
+
+Choose a `page_type` from the schema enum. Typical crystallize outputs: `knowledge` (single-topic findings), `domain-home` (domain hub being bootstrapped), `overview` (vault-level synthesis), `survey` (comparative findings across multiple items). When the type is not obvious, ask the user before proceeding. Validate against the schema enum (already in context).
+
+Read `templates_folder` from wiki-config.md (already in context). If present, attempt to read `<wiki_root>/<templates_folder>/<page_type>.md`. If found, use it as the body scaffold - substitute `{{TITLE}}`, `{{DATE}}`, `{{PAGE_TYPE}}`, `{{DESCRIPTION}}` and populate sections with crystallised content. If the template file is missing, emit one line: *"No template found for `<page_type>` - using default structure."* and use the hardcoded template below. If `templates_folder` is absent from the config, skip the lookup silently and use the hardcoded template below.
+
+**Fallback template (used when no vault-side template is found):**
 
 ```markdown
 ---
@@ -147,6 +157,11 @@ changes: "Crystallized from [source chat / session description]"
 
 ## Related Pages
 [[Related Page 1]], [[Related Page 2]]
+
+## Sources
+
+| Title | Publisher | Date | Links |
+|---|---|---|---|
 ```
 
 Choose the most specific placement using the folder structure from `index.md`. Do not place in blacklisted paths, raw/, archive/, or Projects/. Confirm with the user if the location is not obvious.
@@ -159,7 +174,9 @@ If a new page was created in Step 4b, add an entry in the correct section of `in
 
 Update the relevant domain section in Overview.md only if the crystallization represents a significant shift: a major decision reached, a research phase completed, or a new domain established. Do not update for incremental additions.
 
-### Step 7 - Append to log.md
+### Step 7 - Prepend to log.md
+
+Add the new entry at the top of log.md, below the header line, above all existing entries.
 
 ```
 ## [YYYY-MM-DD] crystallize | <Topic or Chat Name>

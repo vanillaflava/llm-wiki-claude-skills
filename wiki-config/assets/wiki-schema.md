@@ -25,16 +25,18 @@ conditional_fields:
 # Valid enum values
 enums:
   page_type:
-    - knowledge        # synthesised knowledge page
-    - reference        # factual reference material
-    - survey           # overview/survey of a topic area
-    - research-note    # in-progress investigation
-    - domain-home      # domain anchor page
-    - overview         # multi-topic overview
-    - home             # top-level hub
-    - log              # append-only operational log
-    - index            # catalogue/index page
-    - config           # configuration document
+    - knowledge          # default; synthesised knowledge, concept, source note
+    - reference          # lookup accumulator; mostly static once mature
+    - survey             # comparative overview across many items
+    - domain-home        # domain navigation hub; agent bootstrap target
+    - overview           # vault-level meta home; crystallize target
+    - log                # append-only chronological record
+    - index              # graph lookup table; agent-facing catalogue
+    - config             # configuration document
+    - longform           # linear authored document; spec, architecture, design brief
+    - profile            # structured record about an entity (person, company, product)
+    - established-patterns  # memory record; decisions, what worked, anti-patterns
+    - note               # ephemeral capture; daily, scratchpad, todo
   status:
     - active           # current, canonical
     - stub             # placeholder, needs expansion
@@ -122,3 +124,15 @@ If this file is missing, malformed, or unexpectedly modified:
 ```
 
 Wiki-config bundles the default schema and can restore or repair it. The operational skills (wiki-ingest, wiki-lint, wiki-integrate, wiki-crystallize, wiki-query) refuse to proceed without a valid schema and will redirect you here.
+
+## Page templates (optional)
+
+Page templates give wiki pages consistent structure at creation time. One `.md` file per `page_type` value, stored in `<wiki_root>/templates/` and user-editable without repackaging any skill.
+
+Without a `templates/` folder, writing skills fall back to hardcoded minimal stubs and emit an advisory. To deploy the default template set:
+
+```
+/wiki-config
+```
+
+Wiki-config bundles the defaults in `assets/templates/` and deploys them to your vault on init or repair. The `templates/` folder is created only when `/wiki-config` is invoked - operational skills do not deploy it.

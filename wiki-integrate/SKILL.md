@@ -3,7 +3,7 @@ name: wiki-integrate
 description: Weave a newly created or significantly updated wiki page into the knowledge graph. Adds it to index.md if missing, finds related pages by topic overlap, and adds backlinks in both directions. Use when you say /wiki-integrate, when a new page has just been created directly in a chat, or when a page has been significantly revised and needs connecting. Lightweight; does not rewrite content, only adds links and index entries. Requires filesystem read/write access.
 ---
 
-<!-- version: 3.8 -->
+<!-- version: 3.10 -->
 
 # Wiki Integrate
 
@@ -77,6 +77,10 @@ Config Discovery has already loaded `wiki-config.md` and `wiki-schema.md` into c
 
 Read the full content of the target page. Identify the main topic, key concepts, existing `[[wikilinks]]`, and the frontmatter title.
 
+**Page_type check:** Read the `page_type` field from the page's frontmatter.
+- **Missing:** infer from the page's content and structure using the schema enum (already in context). Present the inferred type to the user and confirm before writing: *"This page doesn't have a `page_type`. Based on the content it looks like a `<type>` - does that match, or would you like a different type?"* Record the confirmed value; it will be written in Step 6 alongside `updated:`.
+- **Present but appears outgrown:** if the page's current `page_type` no longer matches its actual scope (e.g. a `knowledge` page that has grown into a comparative survey, or a `stub` that is now substantive), offer a promotion: *"This page is typed as `<type>` but reads more like a `<better-type>` now. Want me to update `page_type` while I'm here?"* Never auto-promote; wait for explicit confirmation.
+
 ### Step 2 - Check the blacklist
 
 Confirm the target page is not in a blacklisted path. If it is, stop; wiki skills cannot modify blacklisted paths.
@@ -104,9 +108,11 @@ For each confirmed pair, add links in both directions:
 
 Write only the new wikilink; do not restructure or rewrite candidate page content. Check each candidate is not blacklisted before writing.
 
-For every page written to (target and each candidate that received a link), also update the `updated:` frontmatter field to today's date. Leave all other frontmatter fields unchanged.
+For every page written to (target and each candidate that received a link), also update the `updated:` frontmatter field to today's date. If a `page_type` value was inferred and confirmed in Step 1, write it to the target page's frontmatter now. Leave all other frontmatter fields unchanged.
 
-### Step 7 - Append to log.md
+### Step 7 - Prepend to log.md
+
+Add the new entry at the top of log.md, below the header line, above all existing entries.
 
 ```
 ## [YYYY-MM-DD] integrate | <Target Page Title>

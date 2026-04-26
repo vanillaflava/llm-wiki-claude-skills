@@ -3,7 +3,7 @@ name: wiki-ingest
 description: Process source files from the raw/ folder into synthesised wiki pages. Run after dropping articles, PDFs, notes, or data files into raw/, or when you say /wiki-ingest. Treats raw/ as a flat queue; scans all files, extracts and synthesises knowledge, creates or updates wiki pages with wikilink backlinks, then moves each source file to the appropriate ingested/ subfolder as an atomic commit; the move is the record of completion. Unreadable files move to ingested/assets/. Updates index.md and logs the operation. Blacklist applies to wiki page creation only, not file moves. Requires filesystem read/write/move access.
 ---
 
-<!-- version: 4.11 -->
+<!-- version: 4.13 -->
 
 # Wiki Ingest
 
@@ -182,6 +182,11 @@ Decide whether to create new wiki page(s), update an existing page, or both.
 When creating a new page:
 - Choose the most specific placement using the filesystem subfolder map from step 2c
 - Name clearly: `Topic - Aspect.md` or `Domain - Subtopic.md`
+
+- **Determine `page_type`:** Choose from the schema enum based on content character. Default is `knowledge`. Common signals: comparative overview of multiple items → `survey`; structured entity record (person, company, product) → `profile`; lookup accumulator or glossary → `reference`; linear authored document or spec → `longform`. When the type is genuinely unclear, ask: *"This reads to me as a [type] page - does that match how you'd categorise it, or would you prefer a different type?"* Validate the chosen value against the `page_type` enum in wiki-schema.md (already in context).
+
+- **Load body template:** Read `templates_folder` from wiki-config.md (already in context). If present, attempt to read `<wiki_root>/<templates_folder>/<page_type>.md`. If found, use it as the body scaffold - substitute `{{TITLE}}`, `{{DATE}}`, `{{PAGE_TYPE}}`, `{{DESCRIPTION}}` and populate each section with synthesised content. If the template file is missing, emit one line: *"No template found for `<page_type>` - using default structure."* and write appropriate structure for the page_type. If `templates_folder` is absent from the config, skip the lookup silently and write appropriate structure.
+
 - Include YAML frontmatter:
   ```yaml
   ---
@@ -203,12 +208,17 @@ When creating a new page:
   `source:` - a one-element list with the post-move `ingested/[subdir]/filename` path. Only written when the page has an ingested origin; omit on hand-authored pages.
   `reliability:` - only when `source:` is present. Assess the originating source's nature and authority: primary source or authoritative document = `high`; well-sourced secondary source = `medium`; blog post, opinion, single-source, or unverified = `low`. When in doubt, use `medium` - or ask the user if the source quality is genuinely hard to assess without knowing their intent. Example: *"This source is a secondary summary but cites primary research throughout. I'd assess it as `medium`. Does that match your expectations, or would you prefer I look for the primary source before creating this page?"*
   `changes:` must be a brief description only; never a file path or URL. The ingested/ path lives in the body Sources section (see below).
-- Add a Sources section at the end of the page body:
+- Add a Sources table at the end of the page body:
   ```markdown
   ## Sources
-  [source-filename](https://the-source-url) · `ingested/[subdir]/source-filename.md`
+
+  | Title | Publisher | Date | Links |
+  |---|---|---|---|
+  | Article Title | Publisher Name | Jan 2026 | [Article](https://example.com/article) · [[ingested/subdir/article-filename]] |
+  | Reference Guide | Vendor Docs | Mar 2026 | [[ingested/documentation/reference-guide]] |
+  | Background Reading | Some Blog | Feb 2026 | [Post](https://example.com/post) |
   ```
-  If the source has a `source:` field in its frontmatter (web-clipped or known URL), both the URL and the local path are required. If no URL is available, the local path alone is sufficient. This section is how wiki-lint confirms the source is not orphaned; do not omit it.
+  One row per source. Link conventions: `[Title](url)` for external URLs; `[[ingested/subdir/filename]]` wikilink for ingested `.md` files; `[Ingested copy](../../ingested/subdir/file.ext)` relative link for binary ingested files (PDF, etc.) - path relative to the wiki page location. Combine external and internal with ` · ` when both exist. Publisher and date extracted from source where available; leave the cell blank if not determinable. This section is how wiki-lint confirms the source is not orphaned; do not omit it.
 - Write synthesised markdown, not a raw copy of the source
 - Add `[[wikilinks]]` to related pages identified in step 2c
 
