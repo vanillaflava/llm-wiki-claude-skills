@@ -75,11 +75,22 @@ Use them individually or together. A minimal setup is `wiki-config` (once) plus 
 
 ## Installation
 
-1. Download the `.skill` files from this repository
-2. In Claude Desktop, go to **Customize → Skills**
-3. Upload each `.skill` file
+**Download from the [latest release](https://github.com/vanillaflava/llm-wiki-claude-skills/releases/latest)** - click the `.skill` files to download them individually, or grab them all:
 
-That's it. The skills appear in your skill list and activate automatically when relevant via conversation (the header visible in the install GUI hints at what kind of things trigger it), or via slash commands (`/wiki-config`, `/wiki-ingest`, `/wiki-query`, `/wiki-lint`, `/wiki-integrate`, `/wiki-crystallize`). After a few cycles, the LLM learns to suggest them organically. 
+| Skill | Download |
+|---|---|
+| wiki-config | [wiki-config.skill](https://github.com/vanillaflava/llm-wiki-claude-skills/releases/latest/download/wiki-config.skill) |
+| wiki-ingest | [wiki-ingest.skill](https://github.com/vanillaflava/llm-wiki-claude-skills/releases/latest/download/wiki-ingest.skill) |
+| wiki-query | [wiki-query.skill](https://github.com/vanillaflava/llm-wiki-claude-skills/releases/latest/download/wiki-query.skill) |
+| wiki-lint | [wiki-lint.skill](https://github.com/vanillaflava/llm-wiki-claude-skills/releases/latest/download/wiki-lint.skill) |
+| wiki-integrate | [wiki-integrate.skill](https://github.com/vanillaflava/llm-wiki-claude-skills/releases/latest/download/wiki-integrate.skill) |
+| wiki-crystallize | [wiki-crystallize.skill](https://github.com/vanillaflava/llm-wiki-claude-skills/releases/latest/download/wiki-crystallize.skill) |
+
+Then in Claude Desktop: **Customize → Skills → upload each file**.
+
+That's it. The skills appear in your skill list and activate automatically when relevant via conversation (the header visible in the install GUI hints at what kind of things trigger it), or via slash commands (`/wiki-config`, `/wiki-ingest`, `/wiki-query`, `/wiki-lint`, `/wiki-integrate`, `/wiki-crystallize`). After a few cycles, the LLM learns to suggest them organically.
+
+If you are comfortable with Git, you can also clone the repo and upload the `.skill` files directly from the repo root - they are kept in sync with each release.
 
 ## Getting started
 
