@@ -1,5 +1,7 @@
 # llm-wiki-claude-skills
 
+![Release|94](https://img.shields.io/github/v/release/vanillaflava/llm-wiki-claude-skills?style=flat-square) ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square) ![Claude](https://img.shields.io/badge/Claude-D97757?style=flat-square&logo=claude&logoColor=white) ![Markdown](https://img.shields.io/badge/Markdown-000000?style=flat-square&logo=markdown&logoColor=white) ![Obsidian](https://img.shields.io/badge/Obsidian-%23483699?style=flat-square&logo=obsidian&logoColor=white) ![MCP](https://img.shields.io/badge/MCP-filesystem-blue?style=flat-square)
+
 Six Claude agent skills for building and maintaining a personal knowledge wiki using Markdown files, wikilinks, and filesystem access.
 
 ## What this is
@@ -271,7 +273,6 @@ What happens to your data once it reaches your provider depends on their privacy
 It is not required - any task management approach you prefer has the same effect, and there are many out there. The wiki skills have no dependency on it. The TaskNotes skill is noted here because it was designed to work alongside this system, and adds turning knowledge into action, planning and step-by-step processes. The wiki pattern works equally well with a folder of task files, a paper notebook, or any tool of your choice.
 
 ---
- [![Obsidian|112](https://img.shields.io/badge/Obsidian-%23483699.svg?style=for-the-badge&logo=obsidian&logoColor=white)](https://obsidian.md/) [![Claude](https://img.shields.io/badge/Claude-D97757?style=for-the-badge&logo=claude&logoColor=white)](https://www.anthropic.com/)
 
 ## License
 
