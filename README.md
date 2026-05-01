@@ -29,20 +29,37 @@ What I am adding to it is just my own preferences in workflow (while keeping the
 | Query compounding  | "Good answers can be filed back" (noted as a tip) | `/crystallize` as a first-class operation - primary mechanism for accumulating chat knowledge, every long session, every major change, archiving a heavy chat -> it compounds and enriches the next bootstrap. |
 | Session bootstrap  | Schema document                                   | The wiki and domain home pages are the bootstrap - the wiki is the persistent context                                                                                                                          |
 | Configuration      | Suggestions for structure                         | `wiki-config.md` read by all six skills; configure once                                                                                                                                                        |
-| Source attribution | Not specified                                     | `changes:` frontmatter field traces each wiki page back to its source in `ingested/` (still a work in process, as many sources accumulate over time)                                                           |
+| Source attribution | Not specified                                     | `source:` frontmatter field traces each wiki page to its origin in `ingested/`. `reliability:` (high/medium/low, agent-assessed at ingest time) captures source trust. Pages from lower-confidence sources get a `## Pending Review` section flagging specific claims to corroborate. |
+| Page structure     | Not specified                                     | 13 vault-side templates (one per page type) deployed by `wiki-config` on init. Writing skills read the matching template when creating new pages. User-editable without touching skill code; changes take effect immediately for new pages. |
 
-The most satisfying thing that emerged from looking at other implementations and attempting to build this myself was `/crystallize`. Karpathy observes that query answers are valuable and shouldn't disappear into chat history. This isn't about a fully automated self-maintaining archival machine either. He stresses that staying involved is important, asking questions and learning from the answers is the whole point. The LLM is the previously absent bookkeeper, the flagger of stale content, conflicting information and orphaned treasures in a sea of markdown. I had already been prompting summaries of heavy chats, and cycling them out for a fresh instance. Now distilling a long working session into a wiki page became the primary way my projects accumulate knowledge from conversations.  Domain home pages (think -> wiki hubs) serve as structured session bootstraps - previously that context lived in manually written summaries. Now the wiki itself is the persistent context across sessions.
+The most satisfying thing that emerged from looking at other implementations and attempting to build this myself was `/crystallize`. Karpathy observes that query answers are valuable and shouldn't disappear into chat history. This isn't about a fully automated self-maintaining archival machine either. He stresses that staying involved is important, asking questions and learning from the answers is the whole point. The LLM is the previously absent bookkeeper, the flagger of stale content, conflicting information and orphaned treasures in a sea of markdown. I had already been prompting summaries of heavy chats, and cycling them out for a fresh instance. Now distilling a long working session into a wiki page became the primary way my projects accumulate knowledge from conversations. Domain home pages (think wiki hubs) serve as structured session bootstraps - previously that context lived in manually written summaries. Now the wiki itself is the persistent context across sessions.
+
+One thing worth knowing before you see it for the first time: the `## Pending Review` section that appears on some ingested pages is not an error. It is a quality signal written by the ingest skill when a page is created from a single lower-confidence source - it flags specific claims that would benefit from a stronger source. When you have one, drop it in `raw/` and re-ingest; the skill will update the trust assessment and remove the section if the gap is resolved.
+
+The other thing I worked out, which took longer than it should have, is how to make session cycling actually comfortable. Agents lose their working memory. The context window fills, things slow down, and you start a fresh chat. Without the wiki, you spend the next twenty minutes re-explaining where you left off.
+
+What I found is that there are three layers that work together to make this nearly seamless, and the wiki is only one of them.
+
+The first layer is whatever your platform calls permanent instructions - Personal Preferences in Claude, system prompt elsewhere. These fire on every conversation automatically. They carry who you are: working style, preferences, hard constraints, tool habits. They do not change by domain.
+
+The second layer is per-project or per-domain instructions - Claude calls these Project Instructions, and similar mechanisms exist on other providers. You attach them to a project and they inject automatically into every chat in that project. I use these to tell the agent which domain it's working in and to direct it to read the relevant domain home before doing anything else.
+
+The third layer is the domain home itself. The agent reads it at session start and knows: what is being worked on, what was decided last session, what is open. No briefing required.
+
+Together: the permanent instructions carry who you are. The project instructions say which domain and point to the home. The domain home carries where you left off. A fresh agent with an empty context window is equipped in the first minute.
+
+This is, I think, the most underappreciated part of the pattern as applied to ongoing work rather than a one-shot task. The wiki is the memory that survives session cycling. The instruction layers are what put a fresh agent on the right track before it even reads the wiki. Both matter, and they are designed to work together.
 
 ## The six skills
 
 | Skill              | What it does                                                                                                                                                                                                                                                                |
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `wiki-config`      | Sets up, validates, and reconfigures `wiki-config.md`, `wiki-schema.md`, and the directory scaffolding. Your interactive companion for inspecting, editing, resetting, or repairing either file. Start here - it deploys both files and scaffolds the directories in one guided step.                                                                                            |
+| `wiki-config`      | Sets up, validates, and reconfigures your wiki. On first run: deploys `wiki-config.md`, `wiki-schema.md`, `wiki-help.md`, `Home.md`, `Overview.md`, `index.md`, `log.md`, the `raw/` and `ingested/` folder structure, and 13 page templates. Ongoing: guided schema editor, template management (view, repair, reset), and repair flows for anything that goes missing. Start here.                                                                                            |
 | `wiki-ingest`      | Processes files from `raw/` into wiki pages; classifies, synthesises, cross-references, and moves each file to `ingested/` as an atomic commit                                                                                                                              |
 | `wiki-query`       | Answers questions by reading the wiki index and relevant pages; cites sources; can file valuable answers as new wiki pages                                                                                                                                                  |
 | `wiki-lint`        | Health-checks the wiki: broken links, orphaned pages, missing index entries, unreferenced sources in `ingested/`                                                                                                                                                            |
 | `wiki-integrate`   | Weaves a new or updated page into the knowledge graph by adding backlinks and index entries                                                                                                                                                                                 |
-| `wiki-crystallize` | Distils a working session or accumulated conversation into a structured wiki page (biased toward updating existing hubs and the overview.md, as the top level summary of everything that is known). You can teach your LLM to adopt a structure that serves your workflow.  |
+| `wiki-crystallize` | The session management mechanism. Distils durable signal from a working session - decisions, findings, open questions - into a structured wiki page. Biased toward updating existing domain homes and `Overview.md` rather than creating new pages. Close every heavy chat with this; the next session picks up from the wiki page, not from scrollback. |
 
 Use them individually or together. A minimal setup is `wiki-config` (once) plus `wiki-ingest` and `wiki-query`. Add the others as your wiki grows.
 
@@ -66,9 +83,11 @@ That's it. The skills appear in your skill list and activate automatically when 
 
 **1. Set up your wiki**
 
-Easiest way: run `/wiki-config`. It asks where your wiki should live, creates both `wiki-config.md` (your settings) and `wiki-schema.md` (the shape your pages follow), and scaffolds the directory structure - `index.md`, `log.md`, `raw/`, `ingested/`, `templates/`. Takes about a minute. You'll then want to replace the placeholder values in `wiki-config.md`'s `blacklist` field with the actual folders you want to keep off-limits to wiki writes.
+Easiest way: run `/wiki-config`. It asks where your wiki should live, then creates the full scaffold in one guided step - config, schema, a user guide (`wiki-help.md`), starter navigation pages (`Home.md`, `Overview.md`), an index, an operation log, the `raw/` and `ingested/` folder structure, and 13 page templates (one per page type). Takes about a minute. You'll then want to replace the placeholder values in `wiki-config.md`'s `blacklist` field with the actual folders you want to keep off-limits to wiki writes.
 
-**The directory containing `wiki-config.md` is your wiki root.** Skills derive it at runtime from the file's location; you never write a path anywhere. If you relocate the wiki, move both `wiki-config.md` and `wiki-schema.md` with it and everything still works.
+`wiki-help.md` lands in your wiki root alongside the config files. It covers fields, page types, write discipline, naming conventions, customisation, and tips - the reference you reach for when something is unexpected. Open it in your notes app; it is a plain Markdown file.
+
+**The directory containing `wiki-config.md` is your wiki root.** Skills derive it at runtime from the file's location; you never write a path anywhere. If you relocate the wiki, move `wiki-config.md` with it and everything still works.
 
 If `/wiki-config` is not installed, the other skills can help - each bundles the same templates as read-only references and will offer to get you set up when you run them. Manual setup works too if you prefer to work with files directly; the config and schema YAML are below, along with field explanations.
 
@@ -115,9 +134,11 @@ Then add this body below the closing `---` (the skill generates this automatical
 
 **ingested_subdirs:** Archival taxonomy within `ingested_folder`. The skill classifies each source and routes it to the appropriate subfolder. Adapt freely; these are just suggestions. `ingested/assets/` is always created for files that couldn't be read or extracted.
 
-**templates_folder:** Reserved for the page-templates system landing in a future release. The folder is created empty during setup. Nothing in the current release reads this field yet; safe to leave as-is.
+**templates_folder:** The folder where page templates live. Deployed and managed by `wiki-config` - one template file per page type. Edit templates directly in your notes app; changes take effect immediately for new pages.
 
 **log_format:** Do not change without updating all wiki skills.
+
+The `reliability:` field you will see in frontmatter is written by `wiki-ingest` at ingest time. Values are `high` (primary or authoritative source), `medium` (secondary source, reasonable confidence), or `low` (speculative or unverified). It is only written when `source:` is also present.
 
 Then create `wiki-schema.md` alongside it. This file defines the frontmatter fields every wiki page uses and the valid values for enumerated fields. Skills read it on boot alongside `wiki-config.md` and consult it whenever they write a page.
 
@@ -180,18 +201,21 @@ The resulting directory structure looks like this:
 
 ```
 your-wiki/
-├── wiki-config.md
+├── wiki-config.md     ← your settings
 ├── wiki-schema.md     ← frontmatter structure for all wiki pages
+├── wiki-help.md       ← user guide (fields, types, tips) - open in your notes app
+├── Home.md            ← navigation hub (skill workflow, links to major sections)
+├── Overview.md        ← living synthesis across all domains (grows via /wiki-crystallize)
 ├── CLAUDE.md          ← tells the agent how your wiki works (see below)
 ├── index.md           ← page catalog (agent maintains this)
-├── log.md             ← audit trail (agent maintains this)
+├── log.md             ← operation log, prepend-only (agent maintains this)
 ├── raw/               ← drop source files here
 ├── ingested/          ← agent archives processed files here
 │   ├── clippings/
 │   ├── documentation/
 │   ├── articles/
 │   └── notes/
-└── templates/         ← reserved for future page-templates system (empty for now)
+└── templates/         ← 13 page templates, one per page type - edit freely
 ```
 
 **2. Write a CLAUDE.md**
