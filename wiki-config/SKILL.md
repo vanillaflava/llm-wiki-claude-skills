@@ -3,7 +3,7 @@ name: wiki-config
 description: Set up, validate, and reconfigure the llm-wiki skill suite. Use when the user says /wiki-config, asks to "set up my wiki", "configure wiki", "initialize wiki config", mentions "page structure problems", "header errors", "schema issues", "missing templates", "page templates", or when any wiki skill reports a missing or invalid config, schema, or templates folder. Owns the interactive configuration flow, schema management, and template management for the wiki system.
 ---
 
-<!-- version: 1.7 -->
+<!-- version: 1.8 -->
 
 # Wiki Config
 
@@ -60,7 +60,7 @@ Then present:
 
 > **Filesystem access scope** - The directory your filesystem tool can reach. This is the outer boundary. Scope your tool tightly; broad access is a privacy risk.
 >
-> **Wiki root** - The folder inside that scope containing your Markdown notes and wiki system files (`wiki-config.md`, `index.md`, `log.md`, `raw\`, `ingested\`, `templates\`). This is where you keep your `.md` files - a subset of your Obsidian vault, your Logseq graph, or wherever you maintain notes. Skills find wiki root by looking for `wiki-config.md`.
+> **Wiki root** - The folder inside that scope containing your Markdown notes and wiki system files (`wiki-config.md`, `wiki-help.md`, `Home.md`, `Overview.md`, `index.md`, `log.md`, `raw\`, `ingested\`, `templates\`). This is where you keep your `.md` files - a subset of your Obsidian vault, your Logseq graph, or wherever you maintain notes. Skills find wiki root by looking for `wiki-config.md`.
 
 > **Important:** Wiki root should not be your machine root (`C:\`, `/`) or user home - those are privacy risks. It also doesn't need to be your entire vault or graph. 
 >
@@ -101,9 +101,10 @@ What's the path?"
 → **Config found** - Read it, then run a full environment check in the same directory. Check each of the following:
 
 1. `wiki-schema.md` - present and parses cleanly / missing / malformed
-2. `templates/` folder - present / missing
-3. Template file completeness - which of the 12 expected files are present (`knowledge.md`, `reference.md`, `survey.md`, `domain-home.md`, `overview.md`, `log.md`, `index.md`, `longform.md`, `profile.md`, `established-patterns.md`, `note.md`, `config.md`)
-4. `templates_folder:` field in `wiki-config.md` - present / absent
+2. `wiki-help.md` - present / missing
+3. `templates/` folder - present / missing
+4. Template file completeness - which of the 13 expected files are present (`knowledge.md`, `reference.md`, `survey.md`, `domain-home.md`, `overview.md`, `home.md`, `log.md`, `index.md`, `longform.md`, `profile.md`, `established-patterns.md`, `note.md`, `config.md`)
+5. `templates_folder:` field in `wiki-config.md` - present / absent
 
 Present a compact, friendly summary - one line per component. For example:
 
@@ -111,7 +112,8 @@ Present a compact, friendly summary - one line per component. For example:
 >
 > - wiki-config.md: found
 > - wiki-schema.md: found
-> - templates/: present (9 of 12 files)
+> - wiki-help.md: found
+> - templates/: present (9 of 13 files)
 > - templates_folder field: absent from config
 >
 > Two items need attention. I can repair both in one step, or you can choose individually.
@@ -125,7 +127,8 @@ Present a compact, friendly summary - one line per component. For example:
 **Repair actions per component:**
 - `wiki-schema.md` missing → deploy from `assets/wiki-schema.md` (non-destructive, no confirmation needed)
 - `wiki-schema.md` malformed → warn, offer reset to bundled default; confirm before overwriting
-- `templates/` folder missing → introduce templates with the blockquoted message below, then offer to create folder and deploy all 12 files + README from `assets/templates/`
+- `wiki-help.md` missing → deploy from `assets/wiki-help.md` (non-destructive, no confirmation needed)
+- `templates/` folder missing → introduce templates with the blockquoted message below, then offer to create folder and deploy all 13 files + README from `assets/templates/`
 - Individual template files missing → deploy only the missing files from `assets/templates/`; never overwrite files already present
 - `templates_folder:` absent from config → write `templates_folder: templates/` to `wiki-config.md`; only do this when `templates/` folder is confirmed present
 
@@ -137,7 +140,7 @@ When `templates/` is missing or incomplete and the user hasn't encountered this 
 >
 > Your templates are yours to edit. Changes take effect immediately for any new pages; existing pages are never modified. If a template file is missing, the skill falls back to a minimal hardcoded structure.
 >
-> The default set covers all 12 page types: knowledge, reference, survey, domain-home, overview, log, index, longform, profile, established-patterns, note, and config.
+> The default set covers all 13 page types: knowledge, reference, survey, domain-home, overview, home, log, index, longform, profile, established-patterns, note, and config.
 
 After presenting, ask: "Deploy the default template set to `<wiki_root>/templates/`?"
 
@@ -172,23 +175,18 @@ Deploy the scaffolding:
 1. Copy `assets/wiki-config-template.md` to `<wiki_root>/wiki-config.md`
 2. Write `templates_folder: templates/` into `<wiki_root>/wiki-config.md` if not already present in the template
 3. Copy `assets/wiki-schema.md` to `<wiki_root>/wiki-schema.md`
-4. If `<wiki_root>/index.md` missing, create it with header:
-   ```
-   # Wiki Index
-   *Catalogue of all wiki pages. Maintained by wiki-ingest and wiki-integrate.*
-   ```
-5. If `<wiki_root>/log.md` missing, create it with header:
-   ```
-   # Wiki Operation Log
-   *Append-only. New entries go at the top.*
-   ```
-6. Create `<wiki_root>/raw/` (the ingest queue)
-7. Create `<wiki_root>/ingested/` and each subdir in `ingested_subdirs`, plus `<wiki_root>/ingested/assets/` (always)
-8. Create `<wiki_root>/templates/` and copy all 12 template files from `assets/templates/` into it
-9. Copy `assets/templates/README.md` to `<wiki_root>/templates/README.md`
-10. Append an init entry to log.md
+4. Copy `assets/wiki-help.md` to `<wiki_root>/wiki-help.md` (if missing; never overwrite an existing copy)
+5. If `<wiki_root>/index.md` missing, create it from `assets/templates/index.md`, substituting `{{TITLE}}` = "index", `{{DATE}}` = today, `{{DESCRIPTION}}` = "Catalogue of all wiki pages."
+6. If `<wiki_root>/log.md` missing, create it from `assets/templates/log.md`, substituting `{{TITLE}}` = "log", `{{DATE}}` = today, `{{DESCRIPTION}}` = "Prepend-only audit trail of all wiki skill operations."
+7. If `<wiki_root>/Home.md` missing, create it from `assets/templates/home.md`, substituting `{{TITLE}}` = "Home", `{{DATE}}` = today, `{{DESCRIPTION}}` = "Navigation hub. Skill workflow, key pages, and your domain links."
+8. If `<wiki_root>/Overview.md` missing, create it from `assets/templates/overview.md`, substituting `{{TITLE}}` = "Overview", `{{DATE}}` = today, `{{DESCRIPTION}}` = "Living synthesis of current knowledge across all domains. Vault-level crystallize target."
+9. Create `<wiki_root>/raw/` (the ingest queue)
+10. Create `<wiki_root>/ingested/` and each subdir in `ingested_subdirs`, plus `<wiki_root>/ingested/assets/` (always)
+11. Create `<wiki_root>/templates/` and copy all 13 template files from `assets/templates/` into it
+12. Copy `assets/templates/README.md` to `<wiki_root>/templates/README.md`
+13. Prepend an init entry to log.md, below the header line, above all existing entries
 
-Report to the user: list of what was created, explicitly naming `wiki-config.md`, `wiki-schema.md`, and the templates folder (N template files). Suggest next steps (drop files in raw/, run /wiki-ingest).
+Report to the user: list of what was created, explicitly naming `wiki-config.md`, `wiki-schema.md`, `wiki-help.md`, `Home.md`, `Overview.md`, and the templates folder (13 template files). Suggest next steps: open `Home.md` for an orientation, drop files in `raw/` and run `/wiki-ingest` to start building knowledge.
 
 ### 3 - Validate
 
@@ -265,15 +263,15 @@ Present the orientation on first entry to this flow:
 >
 > Your templates are yours to edit. Changes take effect immediately for any new pages; existing pages are never modified. If a template file is missing, the skill falls back to a minimal hardcoded structure.
 >
-> The default set covers all 12 page types: knowledge, reference, survey, domain-home, overview, log, index, longform, profile, established-patterns, note, and config.
+> The default set covers all 13 page types: knowledge, reference, survey, domain-home, overview, home, log, index, longform, profile, established-patterns, note, and config.
 
 **Assess current state:**
 
-List files in `<wiki_root>/templates/`. Identify which of the 12 expected files are present and which are missing.
+List files in `<wiki_root>/templates/`. Identify which of the 13 expected files are present and which are missing.
 
 Present the status:
 
-> **Templates folder: [X of 12 default templates present]**
+> **Templates folder: [X of 13 default templates present]**
 >
 > Present: knowledge.md, survey.md, ... [list]
 > Missing: reference.md, ... [list, if any]
@@ -283,14 +281,14 @@ Present the status:
 - **View a template** - read and display the content of any named template file; note that the user can edit it directly in their notes app
 - **Deploy missing defaults** - copy any missing files from `assets/templates/` to `<wiki_root>/templates/`; never overwrite files already present
 - **Reset a specific template** - overwrite a named template with the bundled default; warn before proceeding
-- **Reset all templates** - overwrite all 12 with bundled defaults; warn before proceeding
+- **Reset all templates** - overwrite all 13 with bundled defaults; warn before proceeding
 - **View README** - display `<wiki_root>/templates/README.md`
 
 **Reset safeguard** - show before any reset:
 
 > *"Resetting a template replaces your edits with the bundled default. Your existing wiki pages are not affected - only future pages will use the new structure. This cannot be undone from within this skill."*
 
-Confirm per file on individual reset; confirm once (listing all 12 files) before a full reset.
+Confirm per file on individual reset; confirm once (listing all 13 files) before a full reset.
 
 After any action, offer to continue with another template action or return to the main menu.
 
@@ -302,7 +300,7 @@ After any action, offer to continue with another template action or return to th
 2. **Never overwrite a live config without explicit confirmation.** Reconfiguration is a per-field dialogue.
 3. **Wiki root is the directory containing wiki-config.md.** No wiki_root field in the config. Moving the wiki means moving this file.
 4. **Never deploy to a bare drive root, OS root, or user home.** These are almost always user error.
-5. **The bundled assets are the single source of truth.** This skill bundles `assets/wiki-config-template.md`, `assets/wiki-schema.md`, and `assets/templates/` (12 template files + README). All are deployed during init. The five operational skills bundle identical read-only copies of `wiki-config-template.md` and `wiki-schema.md` in their `references/` folders. When any shared file changes here, operational copies must update in lockstep. `references/setup-help.md` should also be kept in sync across the operational skills.
+5. **The bundled assets are the single source of truth.** This skill bundles `assets/wiki-config-template.md`, `assets/wiki-schema.md`, `assets/wiki-help.md`, and `assets/templates/` (13 template files + README). All are deployed during init. The five operational skills bundle identical read-only copies of `wiki-config-template.md` and `wiki-schema.md` in their `references/` folders. When any shared file changes here, operational copies must update in lockstep. `references/setup-help.md` should also be kept in sync across the operational skills.
 6. **wiki-config is the recommended setup, edit, and repair path.** Only wiki-config has the guided schema editor and repair flow. Operational skills can deploy bundled defaults from their `references/` folder as a fallback when wiki-config isn't available or the user prefers to press on, but must recommend `/wiki-config` first when it's available. Never silently overwrite a malformed schema - that case always needs an explicit user decision with an overwrite warning.
 
 ---

@@ -11,7 +11,7 @@ page_type: log
 
 # {{TITLE}}
 
-*Append-only. Never edit or delete existing entries. New entries go at the top, below this header.*
+*Prepend-only. Never edit or delete existing entries. New entries go at the top, below this header.*
 
 **Format:** `## [YYYY-MM-DD] operation-type | subject`  
 **Types:** `ingest` · `integrate` · `crystallize` · `query` · `lint` · `manual`

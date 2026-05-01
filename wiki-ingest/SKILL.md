@@ -3,7 +3,7 @@ name: wiki-ingest
 description: Process source files from the raw/ folder into synthesised wiki pages. Run after dropping articles, PDFs, notes, or data files into raw/, or when you say /wiki-ingest. Treats raw/ as a flat queue; scans all files, extracts and synthesises knowledge, creates or updates wiki pages with wikilink backlinks, then moves each source file to the appropriate ingested/ subfolder as an atomic commit; the move is the record of completion. Unreadable files move to ingested/assets/. Updates index.md and logs the operation. Blacklist applies to wiki page creation only, not file moves. Requires filesystem read/write/move access.
 ---
 
-<!-- version: 4.13 -->
+<!-- version: 4.14 -->
 
 # Wiki Ingest
 
@@ -280,9 +280,9 @@ Place under the correct subfolder heading, consistent with step 2d placement. Do
 
 If a page was updated rather than created, assess whether its current index.md description still accurately reflects the page's scope. If the update added a major new section or substantially changed coverage, update the description. A stale index entry misleads future searches and agent orientation.
 
-#### 2h. Append to log.md - audit trail
+#### 2h. Prepend to log.md - audit trail
 
-Add a new entry at the top (below the header, above existing entries):
+Add the new entry at the top of log.md, below the header line, above all existing entries:
 ```
 ## [YYYY-MM-DD] ingest | <source filename>
 Brief summary: pages created or updated, destination in ingested/, any files flagged.

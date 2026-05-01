@@ -47,7 +47,7 @@ Wiki root is NOT your machine root (`C:\`, `/`), NOT your user home (`C:\Users\y
 
 `ingested/assets/` is always created automatically; it holds files that could not be read or extracted at ingest time.
 
-**templates_folder.** The folder holding page templates. Reserved for the page-templates system landing in a future release. The folder is created empty during setup. When the templates system ships, user-editable templates placed here will control page structure; no skill in the current release reads this field yet. Safe to leave as-is.
+**templates_folder.** The folder where page templates live. Deployed and managed by wiki-config - one template file per page_type. Edit templates in this folder directly in your notes app; changes take effect immediately for new pages. Existing pages are never modified by template changes. Run `/wiki-config` > Template Management to view, repair, or reset individual templates.
 
 **log_format.** Format string for log entries. Do not change without updating all wiki skills.
 
