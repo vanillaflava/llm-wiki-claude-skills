@@ -1,6 +1,6 @@
 # llm-wiki-claude-skills
 
-![Release|94](https://img.shields.io/github/v/release/vanillaflava/llm-wiki-claude-skills?style=flat-square) ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square) ![Claude](https://img.shields.io/badge/Claude-D97757?style=flat-square&logo=claude&logoColor=white) ![Markdown](https://img.shields.io/badge/Markdown-000000?style=flat-square&logo=markdown&logoColor=white) ![Obsidian](https://img.shields.io/badge/Obsidian-%23483699?style=flat-square&logo=obsidian&logoColor=white) ![MCP](https://img.shields.io/badge/MCP-filesystem-blue?style=flat-square)
+[![Release](https://img.shields.io/github/v/release/vanillaflava/llm-wiki-claude-skills?style=flat-square)](https://github.com/vanillaflava/llm-wiki-claude-skills/releases/latest) [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](https://github.com/vanillaflava/llm-wiki-claude-skills/blob/master/LICENSE) [![Claude](https://img.shields.io/badge/Claude-D97757?style=flat-square&logo=claude&logoColor=white)](https://claude.ai) [![Markdown](https://img.shields.io/badge/Markdown-000000?style=flat-square&logo=markdown&logoColor=white)](https://commonmark.org) [![Obsidian](https://img.shields.io/badge/Obsidian-%23483699?style=flat-square&logo=obsidian&logoColor=white)](https://obsidian.md) [![MCP](https://img.shields.io/badge/MCP-filesystem-blue?style=flat-square)](https://modelcontextprotocol.io)
 
 Six Claude agent skills for building and maintaining a personal knowledge wiki using Markdown files, wikilinks, and filesystem access.
 
