@@ -3,7 +3,7 @@ name: wiki-config
 description: Set up, validate, and reconfigure the llm-wiki skill suite. Use when the user says /wiki-config, asks to "set up my wiki", "configure wiki", "initialize wiki config", mentions "page structure problems", "header errors", "schema issues", "missing templates", "page templates", or when any wiki skill reports a missing or invalid config, schema, or templates folder. Owns the interactive configuration flow, schema management, and template management for the wiki system.
 ---
 
-<!-- version: 1.8 -->
+<!-- version: 1.9 -->
 
 # Wiki Config
 
@@ -140,7 +140,7 @@ When `templates/` is missing or incomplete and the user hasn't encountered this 
 >
 > Your templates are yours to edit. Changes take effect immediately for any new pages; existing pages are never modified. If a template file is missing, the skill falls back to a minimal hardcoded structure.
 >
-> The default set covers all 13 page types: knowledge, reference, survey, domain-home, overview, home, log, index, longform, profile, established-patterns, note, and config.
+> The default set covers all 13 default templates (12 page types plus the special top-level Home navigation hub): knowledge, reference, survey, domain-home, overview, home, log, index, longform, profile, established-patterns, note, and config.
 
 After presenting, ask: "Deploy the default template set to `<wiki_root>/templates/`?"
 
@@ -263,7 +263,7 @@ Present the orientation on first entry to this flow:
 >
 > Your templates are yours to edit. Changes take effect immediately for any new pages; existing pages are never modified. If a template file is missing, the skill falls back to a minimal hardcoded structure.
 >
-> The default set covers all 13 page types: knowledge, reference, survey, domain-home, overview, home, log, index, longform, profile, established-patterns, note, and config.
+> The default set covers all 13 default templates (12 page types plus the special top-level Home navigation hub): knowledge, reference, survey, domain-home, overview, home, log, index, longform, profile, established-patterns, note, and config.
 
 **Assess current state:**
 

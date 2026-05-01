@@ -186,13 +186,15 @@ enums:
     - knowledge
     - reference
     - survey
-    - research-note
     - domain-home
     - overview
-    - home
     - log
     - index
     - config
+    - longform
+    - profile
+    - established-patterns
+    - note
   status:
     - active
     - stub

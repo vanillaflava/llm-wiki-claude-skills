@@ -1,12 +1,15 @@
 ---
-title: {{TITLE}}
-version: 1.0
-date: {{DATE}}
-updated: {{DATE}}
+title:
+  "{ TITLE }":
+version: 1
+date:
+  "{ DATE }":
+updated:
+  "{ DATE }":
 status: active
 description: "{{DESCRIPTION}}"
-changes: "v1.0 - Created by wiki-config on init"
-page_type: home
+changes: v1.0 - Created by wiki-config on init
+page_type: domain-home
 ---
 
 # {{TITLE}}

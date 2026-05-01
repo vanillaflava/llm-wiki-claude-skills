@@ -1,11 +1,11 @@
 ---
 title: Wiki Help
-version: 1.7
+version: 1.8
 date: 2026-04-27
-updated: 2026-04-27
+updated: 2026-05-01
 status: active
 description: "User-facing help for the llm-wiki skill suite. Fields, write discipline, naming, page types, templates, and tips."
-changes: "v1.7 - Frontmatter fields converted to tables"
+changes: "v1.8 - Page types table: research-note removed, note added, 4 missing types added"
 page_type: reference
 ---
 
@@ -201,11 +201,15 @@ The `page_type:` field controls how skills treat a page. The full enum is in `wi
 | `knowledge` | A synthesised page about a topic - what you know about X. The default for most pages wiki-ingest creates. |
 | `reference` | Factual reference material you will look things up in. Conventions guides, glossaries, schema docs. Treated as stable - wiki-lint's staleness check exempts it. |
 | `survey` | An overview of a topic area rather than a deep synthesis of it. "What exists in this space" rather than "what do I know about this". |
-| `research-note` | Active investigation in progress. Less polished than knowledge. |
 | `domain-home` | The anchor page for a knowledge domain. Bootstrap target for agents assigned to that domain. |
+| `overview` | Vault-level meta home; crystallize target. `Overview.md` uses this type. |
 | `log` | Prepend-only operational record. Skills write new entries at the top, below the header. |
 | `index` | Catalogue or index page. `index.md` uses this type. |
 | `config` | Configuration document. `wiki-config.md` and `wiki-schema.md` use this type. Skills treat config pages as sensitive and do not modify them during normal operations. |
+| `longform` | Linear authored document - spec, architecture, design brief. |
+| `profile` | Structured record about an entity (person, company, product). |
+| `established-patterns` | Memory record; decisions, what worked, anti-patterns. |
+| `note` | Ephemeral capture - daily notes, scratchpad, todo. Less polished than knowledge. |
 
 If wiki-integrate or wiki-crystallize touches a page and the `page_type:` field is missing, they will ask you what type it should be before proceeding.
 
