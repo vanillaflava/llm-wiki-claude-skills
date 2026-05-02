@@ -94,9 +94,17 @@ Skills activate automatically when relevant, or via slash commands (`/wiki-confi
 
 If you are comfortable with Git, you can also clone the repo and upload the `.skill` files directly from the repo root - they are kept in sync with each release.
 
-### Other agents (Claude Code, Gemini CLI, Codex CLI, GitHub Copilot)
+### Other agents (Claude Code, Gemini CLI, Codex CLI, GitHub Copilot, and more)
 
-Filesystem access is built in on these platforms - no MCP required. Copy the skill folder you want into your agent's skills directory:
+Use the `skills` CLI to install all six skills at once across any compatible agent:
+
+```bash
+npx skills add vanillaflava/llm-wiki-skills --all
+```
+
+This installs to `~/.agents/skills/` and symlinks to each agent's native directory automatically. No manual path configuration needed.
+
+If you prefer to install manually, copy the skill folder you want into your agent's skills directory:
 
 ```
 Claude Code:     ~/.claude/skills/<skill-name>/
@@ -105,18 +113,11 @@ Gemini CLI:      ~/.gemini/skills/<skill-name>/
 GitHub Copilot:  configure via chat.agentSkillsLocations in VS Code
 ```
 
-Clone the repo and copy:
-
-```bash
-git clone https://github.com/vanillaflava/llm-wiki-skills.git
-cp -r llm-wiki-skills/wiki-query ~/.gemini/skills/wiki-query
-```
-
 Copy the **entire skill folder**, not just `SKILL.md` - skills bundle reference files in `references/` and templates in `assets/` that they read at runtime.
 
 Activate with `/wiki-config` or your agent's equivalent slash command. Conversational triggering varies by agent; slash commands are reliable across all tested platforms.
 
-There is no auto-update mechanism. Watch [GitHub Releases](https://github.com/vanillaflava/llm-wiki-skills/releases) and re-copy the skill folder when new versions ship.
+To update, re-run the install command - it always fetches the latest version from master. `npx skills update` exists but has known issues with remote change detection.
 
 ## Getting started
 
