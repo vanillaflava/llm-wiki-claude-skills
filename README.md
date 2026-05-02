@@ -114,7 +114,7 @@ cp -r llm-wiki-skills/wiki-query ~/.gemini/skills/wiki-query
 
 Copy the **entire skill folder**, not just `SKILL.md` - skills bundle reference files in `references/` and templates in `assets/` that they read at runtime.
 
-Activate with `/wiki-query` or your agent's equivalent slash command. Conversational triggering varies by agent; slash commands are reliable across all tested platforms. `wiki-pack` is Claude Desktop-only packaging tooling and is not needed for folder-based agents.
+Activate with `/wiki-config` or your agent's equivalent slash command. Conversational triggering varies by agent; slash commands are reliable across all tested platforms.
 
 There is no auto-update mechanism. Watch [GitHub Releases](https://github.com/vanillaflava/llm-wiki-skills/releases) and re-copy the skill folder when new versions ship.
 
