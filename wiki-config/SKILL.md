@@ -42,7 +42,7 @@ Present this table with actual status for each skill:
 | wiki-crystallize | [✓/✗] | Distil conversations into wiki pages |
 ```
 
-If any are missing: "Install from https://github.com/vanillaflava/llm-wiki-claude-skills for the full ecosystem."
+If any are missing: "Install from https://github.com/vanillaflava/llm-wiki-skills for the full ecosystem."
 
 The bundled `references/setup-help.md` is available throughout this session. Read it if you need more orientation context, if a user asks detailed questions about the wiki system, or if you get stuck.
 

@@ -2,7 +2,7 @@
 
 **What this is:** A personal knowledge wiki that compounds over time. You add sources; your agent reads, synthesises, and files them into interlinked wiki pages. You ask questions; your agent reads the wiki and answers with citations. Each source and each good question makes it richer.
 
-This guide helps when `wiki-config.md` or `wiki-schema.md` cannot be found. The recommended path is `/wiki-config` - it handles everything below interactively with validation, and it is the only skill that can deploy `wiki-schema.md`. For full context (ecosystem background, privacy model, Karpathy's pattern), see the [llm-wiki-claude-skills README](https://github.com/vanillaflava/llm-wiki-claude-skills).
+This guide helps when `wiki-config.md` or `wiki-schema.md` cannot be found. The recommended path is `/wiki-config` - it handles everything below interactively with validation, and it is the only skill that can deploy `wiki-schema.md`. For full context (ecosystem background, privacy model, Karpathy's pattern), see the [llm-wiki-skills README](https://github.com/vanillaflava/llm-wiki-skills).
 
 ---
 

@@ -1,16 +1,16 @@
-# llm-wiki-claude-skills
+# llm-wiki-skills
 
-[![Release](https://img.shields.io/github/v/release/vanillaflava/llm-wiki-claude-skills?style=flat-square)](https://github.com/vanillaflava/llm-wiki-claude-skills/releases/latest) [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](https://github.com/vanillaflava/llm-wiki-claude-skills/blob/master/LICENSE) [![Claude](https://img.shields.io/badge/Claude-D97757?style=flat-square&logo=claude&logoColor=white)](https://claude.ai) [![Markdown](https://img.shields.io/badge/Markdown-000000?style=flat-square&logo=markdown&logoColor=white)](https://commonmark.org) [![Obsidian](https://img.shields.io/badge/Obsidian-%23483699?style=flat-square&logo=obsidian&logoColor=white)](https://obsidian.md) [![MCP](https://img.shields.io/badge/MCP-filesystem-blue?style=flat-square)](https://modelcontextprotocol.io)
+[![Release](https://img.shields.io/github/v/release/vanillaflava/llm-wiki-skills?style=flat-square)](https://github.com/vanillaflava/llm-wiki-skills/releases/latest) [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](https://github.com/vanillaflava/llm-wiki-skills/blob/master/LICENSE) [![Agent Skills](https://img.shields.io/badge/Agent_Skills-compatible-brightgreen?style=flat-square)](https://agentskills.io/specification) [![Claude](https://img.shields.io/badge/Claude-D97757?style=flat-square&logo=claude&logoColor=white)](https://claude.ai) [![Markdown](https://img.shields.io/badge/Markdown-000000?style=flat-square&logo=markdown&logoColor=white)](https://commonmark.org) [![Obsidian](https://img.shields.io/badge/Obsidian-%23483699?style=flat-square&logo=obsidian&logoColor=white)](https://obsidian.md) [![MCP](https://img.shields.io/badge/MCP-filesystem-blue?style=flat-square)](https://modelcontextprotocol.io)
 
-Six Claude agent skills for building and maintaining a personal knowledge wiki using Markdown files, wikilinks, and filesystem access.
+Six agent skills for building and maintaining a personal knowledge wiki using Markdown files, wikilinks, and filesystem access. Developed on Claude with GUI install support; works on Claude Code, Gemini CLI, Codex CLI, and GitHub Copilot.
 
 ## What this is
 
-A set of installable skills for Claude that let an LLM agent incrementally build and maintain a structured, interlinked knowledge base on your local filesystem. You add sources; the agent reads, synthesises, and files them into wiki pages. You ask questions; the agent reads the wiki and answers with citations. The wiki compounds over time - each source and each good question makes it richer.
+A set of agent skills for incrementally building and maintaining a structured, interlinked knowledge base on your local filesystem. You add sources; the agent reads, synthesises, and files them into wiki pages. You ask questions; the agent reads the wiki and answers with citations. The wiki compounds over time - each source and each good question makes it richer.
 
-This is my personal implementation of the LLM wiki pattern (see below). It is not a product. It has no backend, no API, no cloud sync (unless you provide one), and no dependencies beyond Claude and filesystem access. Everything lives in Markdown files on your disk. If you can read `.md` files, you can use this in Obsidian, Logseq, VS Code, iA Writer, or a plain folder. 
+This is my personal implementation of the LLM wiki pattern (see below). It is not a product. It has no backend, no API, no cloud sync (unless you provide one), and no dependencies beyond your agent and filesystem access. Everything lives in Markdown files on your disk. If you can read `.md` files, you can use this in Obsidian, Logseq, VS Code, iA Writer, or a plain folder. 
 
-I targeted Claude because that's the platform I'm learning most with - the `.skill` packaging is Claude-specific. The underlying instructions are plain markdown though, and the pattern adapts easily to other models; Codex uses `AGENTS.md` for the same purpose, and the instructions would need only minor adaptation.
+I built this on Claude, but the underlying skill instructions follow the [agentskills.io open standard](https://agentskills.io/specification) and work on Gemini CLI, Claude Code, OpenAI Codex CLI, and GitHub Copilot. The `.skill` packaging and Claude Desktop GUI install are Claude-specific; other agents install skills as folders. See [Installation](#installation).
 
 The skills are (hopefully) honest about what they are: structured instructions to a language model, not code. They are good at their job but not infallible. The wiki is only as good as the sources you feed it and the questions you ask. 
 
@@ -67,30 +67,56 @@ Use them individually or together. A minimal setup is `wiki-config` (once) plus 
 
 ## Requirements
 
-**Claude with filesystem access.** These skills read and write files on your local disk. They require an MCP that provides filesystem access - [Desktop Commander](https://github.com/wonderwhy-er/DesktopCommanderMCP) is what this was developed and tested with; the [official Anthropic filesystem MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem) works equally well. Claude Code has native access built in. Without filesystem access, the skills are severely limited (to markdown files created by the LLM you need to manually copy to your local wiki.) 
+**An agent with filesystem access.** These skills read and write files on your local disk. How you get filesystem access depends on your platform:
+
+- **Claude Desktop** has no native filesystem access. You need a filesystem MCP - [Desktop Commander](https://github.com/wonderwhy-er/DesktopCommanderMCP) or the [official Anthropic filesystem MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem), both installable via **Customize → Connectors**.
+- **Claude Code, Gemini CLI, OpenAI Codex CLI, and GitHub Copilot** have filesystem access built in. No MCP required.
+- **Claude.ai web and mobile** cannot reach files on your disk. The skills work with severe limitations and are not recommended for primary use.
 
 **A Markdown wiki directory.** Any folder of `.md` files with a consistent wikilink convention works. The skills were developed in Obsidian but the files themselves are plain Markdown - nothing is Obsidian-specific.
 
-**Claude Desktop** (recommended) or Claude Code. The skills have been tested on Claude Desktop with Desktop Commander via MCP. Claude Code users will need to adapt the CLAUDE.md bootstrap convention. Mobile and web surfaces work with the limitations mentioned.
-
 ## Installation
 
-**Download from the [latest release](https://github.com/vanillaflava/llm-wiki-claude-skills/releases/latest)** - click the `.skill` files to download them individually, or grab them all:
+### Claude Desktop
+
+**Download from the [latest release](https://github.com/vanillaflava/llm-wiki-skills/releases/latest)** and upload each `.skill` file under **Customize → Skills**:
 
 | Skill | Download |
 |---|---|
-| wiki-config | [wiki-config.skill](https://github.com/vanillaflava/llm-wiki-claude-skills/releases/latest/download/wiki-config.skill) |
-| wiki-ingest | [wiki-ingest.skill](https://github.com/vanillaflava/llm-wiki-claude-skills/releases/latest/download/wiki-ingest.skill) |
-| wiki-query | [wiki-query.skill](https://github.com/vanillaflava/llm-wiki-claude-skills/releases/latest/download/wiki-query.skill) |
-| wiki-lint | [wiki-lint.skill](https://github.com/vanillaflava/llm-wiki-claude-skills/releases/latest/download/wiki-lint.skill) |
-| wiki-integrate | [wiki-integrate.skill](https://github.com/vanillaflava/llm-wiki-claude-skills/releases/latest/download/wiki-integrate.skill) |
-| wiki-crystallize | [wiki-crystallize.skill](https://github.com/vanillaflava/llm-wiki-claude-skills/releases/latest/download/wiki-crystallize.skill) |
+| wiki-config | [wiki-config.skill](https://github.com/vanillaflava/llm-wiki-skills/releases/latest/download/wiki-config.skill) |
+| wiki-ingest | [wiki-ingest.skill](https://github.com/vanillaflava/llm-wiki-skills/releases/latest/download/wiki-ingest.skill) |
+| wiki-query | [wiki-query.skill](https://github.com/vanillaflava/llm-wiki-skills/releases/latest/download/wiki-query.skill) |
+| wiki-lint | [wiki-lint.skill](https://github.com/vanillaflava/llm-wiki-skills/releases/latest/download/wiki-lint.skill) |
+| wiki-integrate | [wiki-integrate.skill](https://github.com/vanillaflava/llm-wiki-skills/releases/latest/download/wiki-integrate.skill) |
+| wiki-crystallize | [wiki-crystallize.skill](https://github.com/vanillaflava/llm-wiki-skills/releases/latest/download/wiki-crystallize.skill) |
 
-Then in Claude Desktop: **Customize → Skills → upload each file**.
-
-That's it. The skills appear in your skill list and activate automatically when relevant via conversation (the header visible in the install GUI hints at what kind of things trigger it), or via slash commands (`/wiki-config`, `/wiki-ingest`, `/wiki-query`, `/wiki-lint`, `/wiki-integrate`, `/wiki-crystallize`). After a few cycles, the LLM learns to suggest them organically.
+Skills activate automatically when relevant, or via slash commands (`/wiki-config`, `/wiki-ingest`, `/wiki-query`, `/wiki-lint`, `/wiki-integrate`, `/wiki-crystallize`). After a few cycles, the LLM learns to suggest them organically.
 
 If you are comfortable with Git, you can also clone the repo and upload the `.skill` files directly from the repo root - they are kept in sync with each release.
+
+### Other agents (Claude Code, Gemini CLI, Codex CLI, GitHub Copilot)
+
+Filesystem access is built in on these platforms - no MCP required. Copy the skill folder you want into your agent's skills directory:
+
+```
+Claude Code:     ~/.claude/skills/<skill-name>/
+Codex CLI:       ~/.codex/skills/<skill-name>/
+Gemini CLI:      ~/.gemini/skills/<skill-name>/
+GitHub Copilot:  configure via chat.agentSkillsLocations in VS Code
+```
+
+Clone the repo and copy:
+
+```bash
+git clone https://github.com/vanillaflava/llm-wiki-skills.git
+cp -r llm-wiki-skills/wiki-query ~/.gemini/skills/wiki-query
+```
+
+Copy the **entire skill folder**, not just `SKILL.md` - skills bundle reference files in `references/` and templates in `assets/` that they read at runtime.
+
+Activate with `/wiki-query` or your agent's equivalent slash command. Conversational triggering varies by agent; slash commands are reliable across all tested platforms. `wiki-pack` is Claude Desktop-only packaging tooling and is not needed for folder-based agents.
+
+There is no auto-update mechanism. Watch [GitHub Releases](https://github.com/vanillaflava/llm-wiki-skills/releases) and re-copy the skill folder when new versions ship.
 
 ## Getting started
 
@@ -258,10 +284,10 @@ Before you start, it helps to think in two scopes:
 Your machine
 ├── Everything else on your filesystem
 └── Your knowledge space (Obsidian vault, markdown reader, notes folder, etc.)
-    ├── Private/          ← medical, financial, personal — never expose
+    ├── Private/          ← medical, financial, personal - never expose
     ├── Sensitive/        ← work confidential, legal, credentials
     ├── Archive/          ← legacy notes you don't want an LLM near
-    └── Agent Access/     ← your wiki root — the ONLY folder the agent needs
+    └── Agent Access/     ← your wiki root - the ONLY folder the agent needs
         ├── wiki-config.md
         ├── CLAUDE.md
         ├── raw/
@@ -281,7 +307,7 @@ What happens to your data once it reaches your provider depends on their privacy
 
 ## TaskNotes (optional)
 
-[tasknotes-claude-skill](https://github.com/vanillaflava/tasknotes-claude-skill) is a complementary skill for basic task management against a local Obsidian vault with the [TaskNotes ](https://tasknotes.dev/) plugin installed. I am not affiliated with that project, but their 'one note per task' principle works extremely well with the llm-wiki pattern and these skills. It was my first 'learning how to build agent skills project' (my complementary Claude skill is basic, the official plugin is anything but). Have a look if you are using Obsidian, and/or have no task management skill or MCP wired up. 
+[tasknotes-skill](https://github.com/vanillaflava/tasknotes-skill) is a complementary skill for basic task management against a local Obsidian vault with the [TaskNotes ](https://tasknotes.dev/) plugin installed. I am not affiliated with that project, but their 'one note per task' principle works extremely well with the llm-wiki pattern and these skills. It was my first 'learning how to build agent skills project' (my complementary Claude skill is basic, the official plugin is anything but). Have a look if you are using Obsidian, and/or have no task management skill or MCP wired up. 
 
 It is not required - any task management approach you prefer has the same effect, and there are many out there. The wiki skills have no dependency on it. The TaskNotes skill is noted here because it was designed to work alongside this system, and adds turning knowledge into action, planning and step-by-step processes. The wiki pattern works equally well with a folder of task files, a paper notebook, or any tool of your choice.
 

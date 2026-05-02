@@ -283,7 +283,7 @@ The wiki is the memory that survives session cycling. Crystallize before you clo
 
 **Pair the wiki with task management.** Knowledge and tasks work better together than either does alone. The wiki holds what you know; tasks hold what you intend to do about it. When agents can both read domain knowledge and create, update, and close tasks, they shift from passive responders to active participants - they can track their own work, surface blockers, and hand off cleanly across sessions.
 
-If you are using Obsidian, a companion skill is available at https://github.com/vanillaflava/tasknotes-claude-skill that integrates directly with the wiki skills. It requires the **TaskNotes Community Plugin** enabled in Obsidian. With both installed, agents can run their own Kanban boards anchored to domain homes, and domain homes gain a live task view automatically.
+If you are using Obsidian, a companion skill is available at https://github.com/vanillaflava/tasknotes-skill that integrates directly with the wiki skills. It requires the **TaskNotes Community Plugin** enabled in Obsidian. With both installed, agents can run their own Kanban boards anchored to domain homes, and domain homes gain a live task view automatically.
 
 **You do not have to use all the fields.** The schema defines what skills write; it does not require you to manually fill everything. If you create a page by hand and skip `reliability:`, wiki-lint will flag it softly but nothing breaks. The fields that matter most for day-to-day use are `title:`, `page_type:`, and `date:`.
 
