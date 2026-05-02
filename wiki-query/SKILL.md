@@ -1,9 +1,9 @@
 ---
 name: wiki-query
-description: Answer a question using the compiled wiki knowledge base. Reads index.md to identify relevant pages, synthesises an answer with [[wikilink]] citations, and optionally files valuable answers as new wiki pages. Use when you say /wiki-query or when the user wants to draw on accumulated wiki knowledge rather than general model knowledge. Requires filesystem read access.
+description: Answer a question using the compiled wiki knowledge base. Reads index.md to identify relevant pages, synthesises an answer with [[wikilink]] citations, and optionally files valuable answers as new wiki pages. Use when you say /wiki-query, the user asks "what does my wiki say about", "what do I know about", "what have we worked on regarding", "what's the current state of [topic] in my notes", "check my notes on", "search my wiki for", or when the user wants to draw on personal accumulated knowledge rather than general model knowledge. Requires filesystem read access.
+metadata:
+  version: "3.8"
 ---
-
-<!-- version: 3.7 -->
 
 # Wiki Query
 
@@ -15,7 +15,7 @@ Answers questions by reading and synthesising knowledge from the compiled wiki.
 
 **Every invocation starts here.** Wiki root is the directory containing `wiki-config.md`. Skills derive it at runtime. Pages this skill writes (if you choose to file an answer) follow the structure in `wiki-schema.md` - both files need to be present.
 
-1. **Identify scope**: Determine filesystem scope root (allowedDirectories for MCP, CWD for Code, equivalent for other surfaces).
+1. **Identify scope**: Determine your filesystem scope root - the top-level directory your filesystem tool can access.
 
 2. **Scope check - MANDATORY STOP**: If scope is bare drive root (`C:\`, `D:\`, `/`), OS root, or user home (`C:\Users\X`, `/home/X`, `/Users/X`) → **stop immediately. Do not search. Do not attempt to locate wiki-config.md.** Go directly to step 6.
 

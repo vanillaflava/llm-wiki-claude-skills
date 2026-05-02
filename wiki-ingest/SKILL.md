@@ -1,9 +1,9 @@
 ---
 name: wiki-ingest
-description: Process source files from the raw/ folder into synthesised wiki pages. Run after dropping articles, PDFs, notes, or data files into raw/, or when you say /wiki-ingest. Treats raw/ as a flat queue; scans all files, extracts and synthesises knowledge, creates or updates wiki pages with wikilink backlinks, then moves each source file to the appropriate ingested/ subfolder as an atomic commit; the move is the record of completion. Unreadable files move to ingested/assets/. Updates index.md and logs the operation. Blacklist applies to wiki page creation only, not file moves. Requires filesystem read/write/move access.
+description: Process source files from the raw/ folder into synthesised wiki pages. Run after dropping articles, PDFs, notes, or data files into raw/, or when you say /wiki-ingest, the user says "import these files", "process my clippings", "ingest this article", "I have new articles to add", "turn this PDF into a wiki page", "what's in my raw/ folder", "what have I ingested", asks about files in raw/ or ingested/, or mentions importing or ingesting recent clippings, articles, or PDFs. Treats raw/ as a flat queue; scans all files, extracts and synthesises knowledge, creates or updates wiki pages with wikilink backlinks, then moves each source file to the appropriate ingested/ subfolder as an atomic commit; the move is the record of completion. Unreadable files move to ingested/assets/. Updates index.md and logs the operation. Blacklist applies to wiki page creation only, not file moves. Requires filesystem read/write/move access.
+metadata:
+  version: "4.15"
 ---
-
-<!-- version: 4.14 -->
 
 # Wiki Ingest
 
@@ -15,7 +15,7 @@ Processes source files from the `raw/` queue into synthesised, interlinked wiki 
 
 **Every invocation starts here.** Wiki root is the directory containing `wiki-config.md`. Skills derive it at runtime. Pages this skill writes follow the structure in `wiki-schema.md` - both files need to be present.
 
-1. **Identify scope**: Determine filesystem scope root (allowedDirectories for MCP, CWD for Code, equivalent for other surfaces).
+1. **Identify scope**: Determine your filesystem scope root - the top-level directory your filesystem tool can access.
 
 2. **Scope check - MANDATORY STOP**: If scope is bare drive root (`C:\`, `D:\`, `/`), OS root, or user home (`C:\Users\X`, `/home/X`, `/Users/X`) → **stop immediately. Do not search. Do not attempt to locate wiki-config.md.** Go directly to step 6.
 
@@ -171,7 +171,7 @@ Record the chosen subdir; it is used in steps 2f and 2d.
 
 Read `index.md`. Do two things:
 1. **Find integration points:** identify existing wiki pages related to the source; candidates for backlinks or updates. If this source appears to have been ingested before, note the existing page; you may be updating it rather than creating a new one.
-2. **Map subfolder structure:** scan the actual filesystem (via list_directory) for existing subfolders within the relevant wiki sections. Use this as the primary placement guide. Use index.md headings only to determine where to file the index entry, not to infer what subfolders exist on disk.
+2. **Map subfolder structure:** scan the actual filesystem for existing subfolders within the relevant wiki sections. Use this as the primary placement guide. Use index.md headings only to determine where to file the index entry, not to infer what subfolders exist on disk.
 
 **Duplicate page check:** Before creating a new page in step 2d, scan index.md descriptions for significant topic overlap with the incoming source. If a strong match exists (another page that already covers this subject), prefer updating that page rather than creating a new one. Flag the decision in the session summary: "updated [[Existing Page]] rather than creating a new page."
 

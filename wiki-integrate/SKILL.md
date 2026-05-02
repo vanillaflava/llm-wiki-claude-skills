@@ -1,9 +1,9 @@
 ---
 name: wiki-integrate
-description: Weave a newly created or significantly updated wiki page into the knowledge graph. Adds it to index.md if missing, finds related pages by topic overlap, and adds backlinks in both directions. Use when you say /wiki-integrate, when a new page has just been created directly in a chat, or when a page has been significantly revised and needs connecting. Lightweight; does not rewrite content, only adds links and index entries. Requires filesystem read/write access.
+description: Weave a newly created or significantly updated wiki page into the knowledge graph. Adds it to index.md if missing, finds related pages by topic overlap, and adds backlinks in both directions. Use when you say /wiki-integrate, when the user says "nothing links to this page", "this page is an orphan", "connect this page to related pages", "add backlinks to this page", "add this page to the index", "weave this page into the wiki", when a new page has just been created directly in a chat, or when a page has been significantly revised and needs connecting. Lightweight; does not rewrite content, only adds links and index entries. Requires filesystem read/write access.
+metadata:
+  version: "3.11"
 ---
-
-<!-- version: 3.10 -->
 
 # Wiki Integrate
 
@@ -15,7 +15,7 @@ Connects a new or updated wiki page into the knowledge graph by adding backlinks
 
 **Every invocation starts here.** Wiki root is the directory containing `wiki-config.md`. Skills derive it at runtime. Pages this skill writes to follow the structure in `wiki-schema.md` - both files need to be present.
 
-1. **Identify scope**: Determine filesystem scope root (allowedDirectories for MCP, CWD for Code, equivalent for other surfaces).
+1. **Identify scope**: Determine your filesystem scope root - the top-level directory your filesystem tool can access.
 
 2. **Scope check - MANDATORY STOP**: If scope is bare drive root (`C:\`, `D:\`, `/`), OS root, or user home (`C:\Users\X`, `/home/X`, `/Users/X`) → **stop immediately. Do not search. Do not attempt to locate wiki-config.md.** Go directly to step 6.
 

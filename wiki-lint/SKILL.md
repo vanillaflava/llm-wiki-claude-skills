@@ -1,9 +1,9 @@
 ---
 name: wiki-lint
-description: Health-check the wiki. Scans all pages for broken wikilinks, orphaned pages, stale index entries, missing connections between related pages, em-dash violations in page titles and filenames, orphaned binary assets, and orphaned sources in ingested/. Produces a dated lint report in archive/. Use when you say /wiki-lint or periodically to maintain knowledge graph health. Never auto-fixes anything; report only. Requires filesystem read access and write access to archive/.
+description: Health-check the wiki. Scans all pages for broken wikilinks, orphaned pages, stale index entries, missing connections between related pages, em-dash violations in page titles and filenames, orphaned binary assets, and orphaned sources in ingested/. Produces a dated lint report in archive/. Use when you say /wiki-lint, the user mentions broken links, dead wikilinks, missing pages, orphaned pages, outdated or stale pages, "what's broken in my wiki", "are my links working", "which pages have no connections", or asks for a wiki health check. Never auto-fixes anything; report only. Requires filesystem read access and write access to archive/.
+metadata:
+  version: "3.12"
 ---
-
-<!-- version: 3.11 -->
 
 # Wiki Lint
 
@@ -15,7 +15,7 @@ Health-checks the wiki and produces a report. Never modifies wiki content.
 
 **Every invocation starts here.** Wiki root is the directory containing `wiki-config.md`. Skills derive it at runtime. Pages this skill lints are checked against the structure in `wiki-schema.md` - both files need to be present.
 
-1. **Identify scope**: Determine filesystem scope root (allowedDirectories for MCP, CWD for Code, equivalent for other surfaces).
+1. **Identify scope**: Determine your filesystem scope root - the top-level directory your filesystem tool can access.
 
 2. **Scope check - MANDATORY STOP**: If scope is bare drive root (`C:\`, `D:\`, `/`), OS root, or user home (`C:\Users\X`, `/home/X`, `/Users/X`) → **stop immediately. Do not search. Do not attempt to locate wiki-config.md.** Go directly to step 6.
 

@@ -1,9 +1,9 @@
 ---
 name: wiki-config
-description: Set up, validate, and reconfigure the llm-wiki skill suite. Use when the user says /wiki-config, asks to "set up my wiki", "configure wiki", "initialize wiki config", mentions "page structure problems", "header errors", "schema issues", "missing templates", "page templates", or when any wiki skill reports a missing or invalid config, schema, or templates folder. Owns the interactive configuration flow, schema management, and template management for the wiki system.
+description: Set up, validate, and reconfigure the llm-wiki skill suite. Use when the user says /wiki-config, asks to "set up my wiki", "configure wiki", "initialize wiki config", mentions "page structure problems", "header errors", "schema issues", "missing templates", "page templates", asks for "wiki help", "how does the wiki work", or "explain the wiki skills", or when any wiki skill reports a missing or invalid config, schema, or templates folder. Owns the interactive configuration flow, schema management, and template management for the wiki system.
+metadata:
+  version: "1.10"
 ---
-
-<!-- version: 1.9 -->
 
 # Wiki Config
 
@@ -78,7 +78,7 @@ Otherwise proceed to assess state.
 
 **Check filesystem scope:**
 
-Identify scope root (allowedDirectories for MCP, CWD for Code, equivalent for other surfaces).
+Identify your filesystem scope root - the top-level directory your filesystem tool can access.
 
 **If scope is insensible** (bare drive root, OS root, or user home):
 

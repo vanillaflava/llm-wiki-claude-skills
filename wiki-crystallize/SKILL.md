@@ -1,9 +1,9 @@
 ---
 name: wiki-crystallize
-description: Distil a long chat thread, accumulated research session, or working document into a structured wiki page capturing the current state of knowledge on the topic. Run when you say /wiki-crystallize, when a chat is getting heavy, or before closing a long-running thread. The chat is the scaffolding; the wiki page is the artefact. Requires filesystem read/write access.
+description: Distil a long chat thread, accumulated research session, or working document into a structured wiki page capturing the current state of knowledge on the topic. Run when you say /wiki-crystallize, when the user says "save this to my wiki", "capture what we've worked out", "write this up as a wiki page", "update my wiki from this conversation", "we've covered a lot - let's wrap up", "before I close this chat", when this conversation has covered significant ground across many topics or decisions and capturing the findings would orient future sessions, or when the context is getting heavy and key insights risk being lost. The chat is the scaffolding; the wiki page is the artefact. Requires filesystem read/write access.
+metadata:
+  version: "3.13"
 ---
-
-<!-- version: 3.12 -->
 
 # Wiki Crystallize
 
@@ -15,7 +15,7 @@ Distils ephemeral conversation into durable, structured wiki knowledge.
 
 **Every invocation starts here.** Wiki root is the directory containing `wiki-config.md`. Skills derive it at runtime. Pages this skill writes follow the structure in `wiki-schema.md` - both files need to be present.
 
-1. **Identify scope**: Determine filesystem scope root (allowedDirectories for MCP, CWD for Code, equivalent for other surfaces).
+1. **Identify scope**: Determine your filesystem scope root - the top-level directory your filesystem tool can access.
 
 2. **Scope check - MANDATORY STOP**: If scope is bare drive root (`C:\`, `D:\`, `/`), OS root, or user home (`C:\Users\X`, `/home/X`, `/Users/X`) → **stop immediately. Do not search. Do not attempt to locate wiki-config.md.** Go directly to step 6.
 
