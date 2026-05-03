@@ -1,6 +1,6 @@
 ---
 name: wiki-query
-description: Answer a question using the compiled wiki knowledge base. Reads index.md to identify relevant pages, synthesises an answer with [[wikilink]] citations, and optionally files valuable answers as new wiki pages. Use when you say /wiki-query, the user asks "what does my wiki say about", "what do I know about", "what have we worked on regarding", "what's the current state of [topic] in my notes", "check my notes on", "search my wiki for", or when the user wants to draw on personal accumulated knowledge rather than general model knowledge. Requires filesystem read access.
+description: "Answer a question using the compiled wiki knowledge base, synthesising a response with [[wikilink]] citations. Always use this skill when the user says /wiki-query, 'what does my wiki say about', 'what do I know about', 'check my notes on', 'search my wiki for', or 'what's the current state of [topic] in my notes'. Also use when the user asks a question and signals they want to draw on their own accumulated knowledge rather than general knowledge — phrases like 'what have we worked on regarding', 'based on my notes', 'what's my thinking on', or any question where the answer should come from personal knowledge rather than the model. Optionally files valuable answers as new wiki pages. When in doubt whether personal knowledge retrieval is being requested, use this skill. Requires filesystem read access."
 metadata:
   version: "3.8"
 ---

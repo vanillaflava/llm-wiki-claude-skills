@@ -1,6 +1,6 @@
 ---
 name: wiki-config
-description: Set up, validate, and reconfigure the llm-wiki skill suite. Use when the user says /wiki-config, asks to "set up my wiki", "configure wiki", "initialize wiki config", mentions "page structure problems", "header errors", "schema issues", "missing templates", "page templates", asks for "wiki help", "how does the wiki work", or "explain the wiki skills", or when any wiki skill reports a missing or invalid config, schema, or templates folder. Owns the interactive configuration flow, schema management, and template management for the wiki system.
+description: "Set up, validate, and reconfigure the llm-wiki skill suite. Always use this skill when the user says /wiki-config, asks to 'set up my wiki', 'configure wiki', 'initialize wiki config', mentions 'page structure problems', 'schema issues', 'missing templates', 'wiki help', 'how does the wiki work', or when any wiki skill reports a missing or invalid config, schema, or templates. Also use when the user wants to know what wiki skills are available, seems confused about how the wiki system works, or asks why a skill isn't behaving as expected — even if they don't say 'config'. Owns the interactive configuration flow, schema management, and template management for the wiki system. When in doubt whether a setup or configuration issue is being raised, use this skill."
 metadata:
   version: "1.10"
 ---

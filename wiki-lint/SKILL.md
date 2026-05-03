@@ -1,6 +1,6 @@
 ---
 name: wiki-lint
-description: Health-check the wiki. Scans all pages for broken wikilinks, orphaned pages, stale index entries, missing connections between related pages, em-dash violations in page titles and filenames, orphaned binary assets, and orphaned sources in ingested/. Produces a dated lint report in archive/. Use when you say /wiki-lint, the user mentions broken links, dead wikilinks, missing pages, orphaned pages, outdated or stale pages, "what's broken in my wiki", "are my links working", "which pages have no connections", or asks for a wiki health check. Never auto-fixes anything; report only. Requires filesystem read access and write access to archive/.
+description: "Health-check the wiki: scan all pages for broken wikilinks, orphaned pages, stale index entries, missing connections, em-dash violations, orphaned assets, and schema errors. Produces a dated lint report. Always use this skill when the user says /wiki-lint, mentions broken links, dead wikilinks, orphaned pages, 'what's broken in my wiki', 'are my links working', 'which pages have no connections', or asks for a wiki health check. Also use when the user notices a link that doesn't resolve, suspects the index is out of date, or asks whether the wiki is in good shape — even if they don't say 'lint'. Never auto-fixes anything; reports only. When in doubt whether a wiki health check is being requested, use this skill. Requires filesystem read access and write access to archive/."
 metadata:
   version: "3.12"
 ---

@@ -1,6 +1,6 @@
 ---
 name: wiki-integrate
-description: Weave a newly created or significantly updated wiki page into the knowledge graph. Adds it to index.md if missing, finds related pages by topic overlap, and adds backlinks in both directions. Use when you say /wiki-integrate, when the user says "nothing links to this page", "this page is an orphan", "connect this page to related pages", "add backlinks to this page", "add this page to the index", "weave this page into the wiki", when a new page has just been created directly in a chat, or when a page has been significantly revised and needs connecting. Lightweight; does not rewrite content, only adds links and index entries. Requires filesystem read/write access.
+description: "Weave a wiki page into the knowledge graph: add it to index.md and add backlinks in both directions. Always use this skill when the user says /wiki-integrate, 'nothing links to this page', 'this page is an orphan', 'connect this page to related pages', 'add backlinks to this page', 'add this page to the index', or 'weave this page into the wiki'. Also use whenever a new page has just been created directly in a chat or a page has been significantly revised and may have new connection opportunities — even if the user doesn't explicitly ask for integration. Lightweight; only adds links and index entries, never rewrites content. When in doubt whether a page needs connecting after creation or revision, use this skill. Requires filesystem read/write access."
 metadata:
   version: "3.11"
 ---
